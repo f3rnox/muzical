@@ -1,0 +1,112 @@
+{
+  "name": "muzical",
+  "type": "module",
+  "version": "0.0.2",
+  "description": "A Node.JS CLI Music Player",
+  "keywords": [
+    "music",
+    "player",
+    "cli",
+    "tool",
+    "music-player",
+    "music-library"
+  ],
+  "homepage": "https://github.com/f3rnox/muzical",
+  "bugs": {
+    "url": "https://github.com/f3rnox/muzical/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/f3rnox/muzical"
+  },
+  "license": "MIT",
+  "author": "Cris Mihalache <f3rnox42@gmail.com>",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "bin": {
+    "muzical": "dist/index.js"
+  },
+  "scripts": {
+    "build": "pnpm build:ts && pnpm build:docs",
+    "build:docs": "typedoc --out ./docs ./src && cp LICENSE.md docs/LICENSE.md && cp CHANGELOG.md docs/CHANGELOG.md",
+    "build:ts": "rm -rf dist && NODE_PATH=./src tsc -p tsconfig.json && esbuild src/index.tsx --outfile=dist/index.js --bundle --platform=node --format=esm --packages=external",
+    "dev": "NODE_ENV=dev tsx src/index.tsx",
+    "format": "pnpm format:prettier",
+    "format:check": "pnpm format:prettier:check",
+    "format:prettier": "prettier --write .",
+    "format:prettier:check": "prettier --check .",
+    "lint": "pnpm lint:markdownlint && pnpm lint:eslint",
+    "lint:eslint": "eslint package.json src/**/*",
+    "lint:eslint:fix": "eslint package.json src/**/*",
+    "lint:fix": "pnpm lint:markdownlint:fix && pnpm lint:eslint:fix",
+    "lint:markdownlint": "markdownlint README.md",
+    "lint:markdownlint:fix": "markdownlint --fix README.md",
+    "prepare": "husky",
+    "prepare-release": "pnpm build && git add docs",
+    "prepublish": "pnpm build",
+    "release": "pnpm prepare-release && pnpm update-version && git push --follow-tags origin main",
+    "serve:coverage": "http-server ./coverage",
+    "serve:docs": "http-server ./docs",
+    "start": "tsx src/index.tsx",
+    "test": "NODE_PATH=./src NODE_ENV=test vitest",
+    "update-deps": "updates -u -g -c",
+    "update-version": "standard-version -a"
+  },
+  "dependencies": {
+    "@mishieck/ink-titled-box": "^0.4.2",
+    "env-paths": "^4.0.0",
+    "ink": "^4.1.0",
+    "lodash": "^4.18.1",
+    "meow": "^11.0.0",
+    "music-metadata": "^11.12.3",
+    "p-iteration": "^1.1.8",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@commitlint/format": "^20.5.0",
+    "@commitlint/types": "^20.5.0",
+    "@eslint/js": "^10.0.1",
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@types/lodash": "^4.17.24",
+    "@types/node": "^25.5.2",
+    "@types/react": "^19.2.14",
+    "esbuild": "^0.25.12",
+    "eslint": "^10.2.0",
+    "eslint-plugin-package-json": "^0.91.1",
+    "globals": "^17.4.0",
+    "http-server": "^14.1.1",
+    "husky": "^9.1.7",
+    "jiti": "^2.6.1",
+    "lint-staged": "^16.4.0",
+    "markdownlint-cli": "^0.48.0",
+    "nyc": "^18.0.0",
+    "prettier": "^3.8.1",
+    "remark": "^15.0.1",
+    "standard-version": "^9.5.0",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.8.1",
+    "tsx": "^4.21.0",
+    "typedoc": "^0.28.18",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.0",
+    "updates": "^17.13.5",
+    "vitest": "^4.1.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
