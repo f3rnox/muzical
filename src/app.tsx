@@ -1,148 +1,262 @@
-import React, { useCallback, useEffect, useState, useMemo } from 'react'
-import { Key, Box, useApp, useInput } from 'ink'
-import lodash from 'lodash'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Box, useApp } from 'ink'
 
 import { type AppProps } from './components/app_props'
 import ArtistList from './components/artist_list'
 import AlbumList from './components/album_list'
 import SongList from './components/song_list'
-import { InputTarget } from './components/input_target'
-import { type LibraryAlbum } from './components/library_album'
-import { type LibrarySong } from './load_library'
+import StatusBar from './components/status_bar'
+import HelpBar from './components/help_bar'
+import { type LibraryAlbum, InputTarget } from './types'
+import { type LibrarySong } from './types'
+import { clampIndex } from './utils/clamp_index'
+import { matchesQuery } from './utils/matches_query'
+import { sortAlphabetical } from './sort/sort_alphabetical'
+import { sortSongs } from './sort/sort_songs'
+import { type JumpPosition, useAppInput } from './hooks/use_app_input'
+import { useArtistNames } from './hooks/use_artist_names'
+import { useLibraryAlbums } from './hooks/use_library_albums'
+import { useSearchQueries } from './hooks/use_search_queries'
+import { useTerminalSize } from './hooks/use_terminal_size'
+import { detectPlayer } from './utils/detect_player'
+import { usePlayer } from './hooks/use_player'
+
+const LIST_ROW_OVERHEAD = 8
 
 export default function App(props: Readonly<AppProps>) {
 	const { exit } = useApp()
 	const { library } = props
-	const albumNames = useMemo((): string[] => (
-		lodash.uniq(library.map(({ metadata }): string => (
-			metadata.common.album ?? ''
-		)))
-	), [library])
+	const { columns, rows } = useTerminalSize()
+	const listMaxRows = Math.max(3, rows - LIST_ROW_OVERHEAD)
 
-	const artistNames = useMemo((): string[] => (
-		lodash.uniq(library.map(({ metadata }): string => (
-			metadata.common.artist ?? ''
-		)))
-	), [library])
+	const allAlbums = useLibraryAlbums(library)
+	const allArtistNames = useArtistNames(library)
 
-	const [inputTarget, setInputTarget] = useState(InputTarget.Artist)
-	const [selectedArtist, setSelectedArtist] = useState('')
+	const player = useMemo(() => detectPlayer(), [])
+	const { playingSong, playerName, toggle, stop } = usePlayer({ player })
+
+	const [inputTarget, setInputTarget] = useState<InputTarget>(InputTarget.Artist)
+	const [selectedArtist, setSelectedArtist] = useState<string>('')
 	const [selectedAlbum, setSelectedAlbum] = useState<LibraryAlbum | null>(null)
 	const [selectedSong, setSelectedSong] = useState<LibrarySong | null>(null)
+	const [isSearching, setIsSearching] = useState<boolean>(false)
+	const { queries, setQueryFor, clearQueryFor } = useSearchQueries()
 
-	const albums = useMemo((): LibraryAlbum[] => (
-		albumNames.map((album: string): LibraryAlbum => {
-			const songs = library.filter(({ metadata }): boolean => metadata.common.album === album)
+	const activeQuery = queries[inputTarget]
 
-			return {
-				name: album,
-				artists: lodash.uniq(songs.map(({ metadata }) => metadata.common.artist ?? '')),
-				songs,
-			}
-		})
-	), [library, albumNames])
+	const visibleArtists = useMemo((): string[] => (
+		allArtistNames.filter((name: string): boolean => (
+			matchesQuery(name, queries[InputTarget.Artist])
+		))
+	), [allArtistNames, queries])
 
 	const albumsForSelectedArtist = useMemo((): LibraryAlbum[] => (
-		albums.filter(({ artists }) => artists.includes(selectedArtist))
-	), [selectedArtist, albums])
+		allAlbums
+			.filter(({ artists }): boolean => artists.includes(selectedArtist))
+			.sort((a: LibraryAlbum, b: LibraryAlbum): number => (
+				sortAlphabetical(a.name, b.name)
+			))
+	), [allAlbums, selectedArtist])
 
-	const onArtistInput = useCallback((_: string, key: Key): void => {
-		if (key.downArrow) {
-			const artistI = artistNames.indexOf(selectedArtist)
-			const artistName = artistNames[artistI + 1]
+	const visibleAlbums = useMemo((): LibraryAlbum[] => (
+		albumsForSelectedArtist.filter((album: LibraryAlbum): boolean => (
+			matchesQuery(album.name, queries[InputTarget.Album])
+		))
+	), [albumsForSelectedArtist, queries])
 
-			if (artistName !== undefined) {
-				setSelectedArtist(artistName)
-			}
-		} else if (key.upArrow) {
-			const artistI = artistNames.indexOf(selectedArtist)
-			const artistName = artistNames[artistI - 1]
+	const songsForSelectedAlbum = useMemo((): LibrarySong[] => (
+		[...(selectedAlbum?.songs ?? [])].sort(sortSongs)
+	), [selectedAlbum])
 
-			if (artistName !== undefined) {
-				setSelectedArtist(artistName)
-			}
+	const visibleSongs = useMemo((): LibrarySong[] => (
+		songsForSelectedAlbum.filter((song: LibrarySong): boolean => (
+			matchesQuery(song.metadata.common.title ?? '', queries[InputTarget.Song])
+		))
+	), [songsForSelectedAlbum, queries])
+
+	const moveArtist = useCallback((delta: number): void => {
+		const current = visibleArtists.indexOf(selectedArtist)
+		const next = clampIndex(visibleArtists.length, current, delta)
+		const name = next === -1 ? undefined : visibleArtists[next]
+
+		if (name !== undefined) {
+			setSelectedArtist(name)
 		}
-	}, [artistNames, selectedArtist])
+	}, [visibleArtists, selectedArtist])
 
-	const onAlbumInput = useCallback((_: string, key: Key): void => {
-		if (key.downArrow) {
-			const albumI = albumsForSelectedArtist.findIndex(({ name }): boolean => name === selectedAlbum?.name)
-			const album = albumsForSelectedArtist[albumI + 1]
+	const moveAlbum = useCallback((delta: number): void => {
+		const current = visibleAlbums.findIndex(({ name }): boolean => (
+			name === selectedAlbum?.name
+		))
+		const next = clampIndex(visibleAlbums.length, current, delta)
+		const album = next === -1 ? undefined : visibleAlbums[next]
 
-			if (album !== undefined) {
-				setSelectedAlbum(album)
-			}
-		} else if (key.upArrow) {
-			const albumI = albumsForSelectedArtist.findIndex(({ name }): boolean => name === selectedAlbum?.name)
-			const album = albumsForSelectedArtist[albumI - 1]
-
-			if (album !== undefined) {
-				setSelectedAlbum(album)
-			}
+		if (album !== undefined) {
+			setSelectedAlbum(album)
 		}
-	}, [albumsForSelectedArtist, selectedAlbum])
+	}, [visibleAlbums, selectedAlbum])
 
-	const onSongInput = useCallback((_: string, key: Key): void => {
-		if (key.downArrow) {
-			const songI = selectedAlbum?.songs.findIndex(({ metadata }): boolean => metadata.common.title === selectedSong?.metadata.common.title) ?? 0
-			const song = (selectedAlbum?.songs ?? [])[songI + 1]
+	const moveSong = useCallback((delta: number): void => {
+		const current = visibleSongs.findIndex((song: LibrarySong): boolean => (
+			song.filePath === selectedSong?.filePath
+		))
+		const next = clampIndex(visibleSongs.length, current, delta)
+		const song = next === -1 ? undefined : visibleSongs[next]
 
-			if (song !== undefined) {
-				setSelectedSong(song)
-			}
-		} else if (key.upArrow) {
-			const songI = selectedAlbum?.songs.findIndex(({ metadata }): boolean => metadata.common.title === selectedSong?.metadata.common.title) ?? 0
-			const song = (selectedAlbum?.songs ?? [])[songI - 1]
-
-			if (song !== undefined) {
-				setSelectedSong(song)
-			}
+		if (song !== undefined) {
+			setSelectedSong(song)
 		}
-	}, [selectedAlbum, selectedSong])
+	}, [visibleSongs, selectedSong])
 
-	useInput((input, key): void => {
-		if (input === 'q') {
-			exit()
-		}
-
-		if (key.leftArrow) {
-			if (inputTarget === InputTarget.Album) {
-				setInputTarget(InputTarget.Artist)
-			} else if (inputTarget === InputTarget.Song) {
-				setInputTarget(InputTarget.Album)
-			}
-		} else if (key.rightArrow) {
-			if (inputTarget === InputTarget.Artist) {
-				setInputTarget(InputTarget.Album)
-			} else if (inputTarget === InputTarget.Album) {
-				setInputTarget(InputTarget.Song)
-			}
-		} else if (inputTarget === InputTarget.Artist) {
-			onArtistInput(input, key)
+	const moveBy = useCallback((delta: number): void => {
+		if (inputTarget === InputTarget.Artist) {
+			moveArtist(delta)
 		} else if (inputTarget === InputTarget.Album) {
-			onAlbumInput(input, key)
-		} else if (inputTarget === InputTarget.Song) {
-			onSongInput(input, key)
+			moveAlbum(delta)
+		} else {
+			moveSong(delta)
 		}
+	}, [inputTarget, moveArtist, moveAlbum, moveSong])
+
+	const jumpTo = useCallback((position: JumpPosition): void => {
+		if (inputTarget === InputTarget.Artist) {
+			const name = position === 'start' ? visibleArtists[0] : visibleArtists.at(-1)
+
+			if (name !== undefined) {
+				setSelectedArtist(name)
+			}
+		} else if (inputTarget === InputTarget.Album) {
+			const album = position === 'start' ? visibleAlbums[0] : visibleAlbums.at(-1)
+
+			if (album !== undefined) {
+				setSelectedAlbum(album)
+			}
+		} else {
+			const song = position === 'start' ? visibleSongs[0] : visibleSongs.at(-1)
+
+			if (song !== undefined) {
+				setSelectedSong(song)
+			}
+		}
+	}, [inputTarget, visibleArtists, visibleAlbums, visibleSongs])
+
+	const focusPrevColumn = useCallback((): void => {
+		if (inputTarget === InputTarget.Album) {
+			setInputTarget(InputTarget.Artist)
+		} else if (inputTarget === InputTarget.Song) {
+			setInputTarget(InputTarget.Album)
+		}
+	}, [inputTarget])
+
+	const focusNextColumn = useCallback((): void => {
+		if (inputTarget === InputTarget.Artist) {
+			setInputTarget(InputTarget.Album)
+		} else if (inputTarget === InputTarget.Album) {
+			setInputTarget(InputTarget.Song)
+		}
+	}, [inputTarget])
+
+	const togglePlayback = useCallback((): void => {
+		toggle(selectedSong)
+	}, [toggle, selectedSong])
+
+	useAppInput({
+		inputTarget,
+		isSearching,
+		listMaxRows,
+		exit,
+		setIsSearching,
+		setQueryFor,
+		clearQueryFor,
+		moveBy,
+		jumpTo,
+		focusPrevColumn,
+		focusNextColumn,
+		togglePlayback,
+		stopPlayback: stop
 	})
 
-	useEffect(() => {
-		setSelectedArtist(artistNames[0] ?? '')
-	}, [artistNames])
+	useEffect((): void => {
+		if (visibleArtists.length === 0) {
+			setSelectedArtist('')
 
-	useEffect(() => {
-		setSelectedAlbum(albumsForSelectedArtist[0] ?? null)
-	}, [albumsForSelectedArtist])
+			return
+		}
 
-	useEffect(() => {
-		setSelectedSong(selectedAlbum?.songs[0] ?? null)
-	}, [selectedAlbum])
+		if (!visibleArtists.includes(selectedArtist)) {
+			setSelectedArtist(visibleArtists[0] ?? '')
+		}
+	}, [visibleArtists, selectedArtist])
+
+	useEffect((): void => {
+		if (visibleAlbums.length === 0) {
+			setSelectedAlbum(null)
+
+			return
+		}
+
+		const stillPresent = visibleAlbums.some(({ name }): boolean => (
+			name === selectedAlbum?.name
+		))
+
+		if (!stillPresent) {
+			setSelectedAlbum(visibleAlbums[0] ?? null)
+		}
+	}, [visibleAlbums, selectedAlbum])
+
+	useEffect((): void => {
+		if (visibleSongs.length === 0) {
+			setSelectedSong(null)
+
+			return
+		}
+
+		const stillPresent = visibleSongs.some((song: LibrarySong): boolean => (
+			song.filePath === selectedSong?.filePath
+		))
+
+		if (!stillPresent) {
+			setSelectedSong(visibleSongs[0] ?? null)
+		}
+	}, [visibleSongs, selectedSong])
 
 	return (
-		<Box gap={1}>
-			<ArtistList artistNames={artistNames} selectedArtist={selectedArtist} inputTarget={inputTarget} />
-			<AlbumList albumsForSelectedArtist={albumsForSelectedArtist} selectedAlbum={selectedAlbum} inputTarget={inputTarget} />
-			<SongList songs={selectedAlbum?.songs ?? []} selectedSong={selectedSong} inputTarget={inputTarget} />
+		<Box flexDirection="column">
+			<StatusBar
+				width={columns}
+				totalSongs={library.length}
+				totalArtists={allArtistNames.length}
+				totalAlbums={allAlbums.length}
+				selectedArtist={selectedArtist}
+				selectedAlbum={selectedAlbum}
+				selectedSong={selectedSong}
+				playingSong={playingSong}
+				playerName={playerName}
+			/>
+			<Box flexGrow={1}>
+				<ArtistList
+					artistNames={visibleArtists}
+					selectedArtist={selectedArtist}
+					inputTarget={inputTarget}
+					maxRows={listMaxRows}
+					totalCount={allArtistNames.length}
+				/>
+				<AlbumList
+					albumsForSelectedArtist={visibleAlbums}
+					selectedAlbum={selectedAlbum}
+					inputTarget={inputTarget}
+					maxRows={listMaxRows}
+					totalCount={albumsForSelectedArtist.length}
+				/>
+				<SongList
+					songs={visibleSongs}
+					selectedSong={selectedSong}
+					inputTarget={inputTarget}
+					maxRows={listMaxRows}
+					totalCount={songsForSelectedAlbum.length}
+				/>
+			</Box>
+			<HelpBar isSearching={isSearching} searchQuery={activeQuery} />
 		</Box>
 	)
 }

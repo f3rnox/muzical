@@ -1,10 +1,6 @@
 import PI from 'p-iteration'
-import { type IAudioMetadata, parseFile } from 'music-metadata'
-
-interface LibrarySong {
-	filePath: string
-	metadata: IAudioMetadata
-}
+import { parseFile } from 'music-metadata'
+import { type LibrarySong } from './types'
 
 const loadMetadata = async (files: string[]) => (
 	PI.map(files, async (filePath: string): Promise<LibrarySong> => ({
@@ -14,4 +10,3 @@ const loadMetadata = async (files: string[]) => (
 )
 
 export default loadMetadata
-export { LibrarySong }

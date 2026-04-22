@@ -1,5 +1,5 @@
 import { type Config } from '../load_config'
-import { type LibrarySong } from '../load_library'
+import { type LibrarySong } from '../types'
 
 export interface AppProps {
 	config: Config

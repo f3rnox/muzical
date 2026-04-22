@@ -1,9 +1,10 @@
-import { promises as fs } from 'fs'
-import path from 'path'
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 
-const SONG_EXTENSIONS = ['.mp3', '.flac']
-
-const readMusicDir = async (dirPath: string): Promise<string[]> => {
+const readMusicDir = async (
+	dirPath: string,
+	songExtensions: string[]
+): Promise<string[]> => {
 	const dir = await fs.readdir(dirPath, { withFileTypes: true })
 	let files: string[] = []
 
@@ -11,7 +12,7 @@ const readMusicDir = async (dirPath: string): Promise<string[]> => {
 		const nodePath = path.join(dirPath, node.name)
 
 		if (node.isDirectory()) {
-			const directoryFiles = await readMusicDir(nodePath)
+			const directoryFiles = await readMusicDir(nodePath, songExtensions)
 
 			files = [...files, ...directoryFiles]
 		} else if (node.isFile()) {
@@ -22,7 +23,7 @@ const readMusicDir = async (dirPath: string): Promise<string[]> => {
 	}
 
 	return files.filter((filePath: string): boolean => (
-		SONG_EXTENSIONS.includes(path.extname(filePath))
+		songExtensions.includes(path.extname(filePath))
 	))
 }
 

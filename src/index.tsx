@@ -8,13 +8,18 @@ import loadMusicDir from './load_music_dir'
 import loadLibrary from './load_library'
 
 const run = async () => {
-	const config = await loadConfig()
-	const { musicDir } = config
-	const musicFiles = await loadMusicDir(musicDir)
-	const library = await loadLibrary(musicFiles)
+	console.clear()
+	try {
+		const config = await loadConfig()
+		const { musicDir, songExtensions } = config
+		const musicFiles = await loadMusicDir(musicDir, songExtensions)
+		const library = await loadLibrary(musicFiles)
 
-	const { waitUntilExit } = render(<App config={config} library={library} />)
-	await waitUntilExit()
+		const { waitUntilExit } = render(<App config={config} library={library} />)
+		await waitUntilExit()
+	} finally {
+		console.clear()
+	}
 }
 
 run().catch((err: Error): void => {
