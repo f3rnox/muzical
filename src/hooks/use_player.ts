@@ -12,6 +12,7 @@ export interface UsePlayerOptions {
 export interface PlayerApi {
 	playingSong: LibrarySong | null
 	playerName: string | null
+	playStartedAt: number | null
 	toggle: (song: LibrarySong | null) => void
 	stop: () => void
 }
@@ -19,6 +20,7 @@ export interface PlayerApi {
 export function usePlayer(options: Readonly<UsePlayerOptions>): PlayerApi {
 	const { player } = options
 	const [playingSong, setPlayingSong] = useState<LibrarySong | null>(null)
+	const [playStartedAt, setPlayStartedAt] = useState<number | null>(null)
 	const processRef = useRef<ChildProcess | null>(null)
 
 	const killCurrent = useCallback((): void => {
@@ -37,6 +39,7 @@ export function usePlayer(options: Readonly<UsePlayerOptions>): PlayerApi {
 	const stop = useCallback((): void => {
 		killCurrent()
 		setPlayingSong(null)
+		setPlayStartedAt(null)
 	}, [killCurrent])
 
 	const play = useCallback((song: Readonly<LibrarySong>): void => {
@@ -51,11 +54,13 @@ export function usePlayer(options: Readonly<UsePlayerOptions>): PlayerApi {
 
 		processRef.current = proc
 		setPlayingSong(song)
+		setPlayStartedAt(Date.now())
 
 		proc.once('exit', (): void => {
 			if (processRef.current === proc) {
 				processRef.current = null
 				setPlayingSong(null)
+				setPlayStartedAt(null)
 			}
 		})
 
@@ -63,6 +68,7 @@ export function usePlayer(options: Readonly<UsePlayerOptions>): PlayerApi {
 			if (processRef.current === proc) {
 				processRef.current = null
 				setPlayingSong(null)
+				setPlayStartedAt(null)
 			}
 		})
 	}, [player, killCurrent])
@@ -90,6 +96,7 @@ export function usePlayer(options: Readonly<UsePlayerOptions>): PlayerApi {
 	return {
 		playingSong,
 		playerName: player?.name ?? null,
+		playStartedAt,
 		toggle,
 		stop
 	}

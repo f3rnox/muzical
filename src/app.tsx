@@ -6,6 +6,7 @@ import ArtistList from './components/artist_list'
 import AlbumList from './components/album_list'
 import SongList from './components/song_list'
 import StatusBar from './components/status_bar'
+import PlaybackBar from './components/playback_bar'
 import HelpBar from './components/help_bar'
 import { type LibraryAlbum, InputTarget } from './types'
 import { type LibrarySong } from './types'
@@ -21,7 +22,7 @@ import { useTerminalSize } from './hooks/use_terminal_size'
 import { detectPlayer } from './utils/detect_player'
 import { usePlayer } from './hooks/use_player'
 
-const LIST_ROW_OVERHEAD = 8
+const LIST_ROW_OVERHEAD = 11
 
 export default function App(props: Readonly<AppProps>) {
 	const { exit } = useApp()
@@ -33,7 +34,7 @@ export default function App(props: Readonly<AppProps>) {
 	const allArtistNames = useArtistNames(library)
 
 	const player = useMemo(() => detectPlayer(), [])
-	const { playingSong, playerName, toggle, stop } = usePlayer({ player })
+	const { playingSong, playerName, playStartedAt, toggle, stop } = usePlayer({ player })
 
 	const [inputTarget, setInputTarget] = useState<InputTarget>(InputTarget.Artist)
 	const [selectedArtist, setSelectedArtist] = useState<string>('')
@@ -230,8 +231,6 @@ export default function App(props: Readonly<AppProps>) {
 				selectedArtist={selectedArtist}
 				selectedAlbum={selectedAlbum}
 				selectedSong={selectedSong}
-				playingSong={playingSong}
-				playerName={playerName}
 			/>
 			<Box flexGrow={1}>
 				<ArtistList
@@ -256,6 +255,12 @@ export default function App(props: Readonly<AppProps>) {
 					totalCount={songsForSelectedAlbum.length}
 				/>
 			</Box>
+			<PlaybackBar
+				width={columns}
+				playingSong={playingSong}
+				playerName={playerName}
+				playStartedAt={playStartedAt}
+			/>
 			<HelpBar isSearching={isSearching} searchQuery={activeQuery} />
 		</Box>
 	)
