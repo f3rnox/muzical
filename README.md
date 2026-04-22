@@ -4,16 +4,14 @@
 [![Node.js](https://img.shields.io/node/v-lts/muzical?label=node&logo=node.js)](https://github.com/f3rnox/muzical/blob/main/package.json)
 [![pnpm](https://img.shields.io/badge/maintained%20with-pnpm-CB3837?logo=pnpm)](https://pnpm.io/)
 
-**Muzical** is a terminal music browser and launcher: a three-column TUI (artist →
-album → track) built with [Ink](https://github.com/vadimdemedes/ink) and React. It
-indexes audio files under a configurable folder, reads tags with
-[music-metadata](https://github.com/Borewit/music-metadata), and hands playback off
-to whichever common CLI media player it finds first on your `PATH`.
+**Muzical** is a terminal music browser and launcher: a three-column TUI
+(artist → album → track) built with [Ink](https://github.com/vadimdemedes/ink)
+and React. It indexes audio files under a configurable folder, reads tags with
+[music-metadata](https://github.com/Borewit/music-metadata), and hands playback
+off to whichever common CLI media player it finds first on your `PATH`.
 
-<p align="center">
-  <strong>Artists</strong> · <strong>Albums</strong> · <strong>Tracks</strong> ·
-  <strong>Search</strong> · <strong>External player</strong>
-</p>
+**Summary.** Three panes (artist, album, track), per-column search, tag-based
+metadata, and playback through whichever supported CLI player is found first.
 
 ---
 
@@ -106,11 +104,9 @@ pnpm add -g muzical
 Muzical reads `config.json` from the OS config directory for the `muzical`
 application name (via [env-paths](https://github.com/sindresorhus/env-paths)):
 
-| OS      | Typical path                                |
-| ------- | ------------------------------------------- |
-| Linux   | `~/.config/muzical/config.json`             |
-| macOS   | `~/Library/Preferences/muzical/config.json` |
-| Windows | `%APPDATA%\muzical\config.json`             |
+- **Linux:** `~/.config/muzical/config.json`
+- **macOS:** `~/Library/Preferences/muzical/config.json`
+- **Windows:** `%APPDATA%\muzical\config.json`
 
 If the config directory does not exist, it is created on startup. **If
 `config.json` is missing, the program exits** with a message showing the expected
@@ -125,10 +121,11 @@ path.
 }
 ```
 
-| Field              | Required | Description                                                |
-| ------------------ | -------- | ---------------------------------------------------------- |
-| `musicDir`         | Yes      | Root folder to scan recursively for audio files.            |
-| `songExtensions`   | No       | File suffixes to include. Defaults to `[".mp3", ".flac"]`. |
+Fields:
+
+- **`musicDir`** (required) — Root directory scanned recursively for audio files.
+- **`songExtensions`** (optional) — Allowed suffixes; defaults to
+  `[".mp3", ".flac"]`.
 
 ---
 
@@ -138,8 +135,8 @@ path.
 muzical
 ```
 
-On launch, Muzical clears the screen, loads the library (this can take a moment on
-large collections), renders the TUI, and clears again on exit.
+On launch, Muzical clears the screen, loads the library (this can take a moment
+on large collections), renders the TUI, and clears again on exit.
 
 - Use **left/right** (or `h` / `l`) to move focus between **Artists**, **Albums**,
   and **Songs**.
