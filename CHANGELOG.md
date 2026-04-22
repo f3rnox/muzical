@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6](https://github.com/f3rnox/muzical/compare/v0.0.5...v0.0.6) (2026-04-22)
+
+
+### Features
+
+* add and integrate commander ([b82ea23](https://github.com/f3rnox/muzical/commit/b82ea235ccf4ab37b16ee65058bd11a389b303f6))
+
 ### [0.0.5](https://github.com/f3rnox/muzical/compare/v0.0.4...v0.0.5) (2026-04-22)
 
 
