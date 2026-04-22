@@ -1,5 +1,9 @@
 /**
- * Truncates a string to `maxChars` code units, appending "…" when shorter than `label`.
+ * Truncates a label to at most `maxChars` code units, reserving one character for an ellipsis when needed.
+ *
+ * @param maxChars - Maximum width of the returned string.
+ * @param label - Full text to fit in the UI.
+ * @returns Either the full label, a shortened label with `…`, or empty when `maxChars` is non-positive.
  */
 export default function fitLabel(maxChars: number, label: string): string {
 	if (maxChars <= 0) {

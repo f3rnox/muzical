@@ -10,6 +10,11 @@ export interface SearchQueriesApi {
 	clearQueryFor: (target: InputTarget) => void
 }
 
+/**
+ * Holds per-column search query strings and updaters used by the three-pane TUI filter UI.
+ *
+ * @returns Query map plus `setQueryFor` / `clearQueryFor` mutators keyed by {@link InputTarget}.
+ */
 export function useSearchQueries(): SearchQueriesApi {
 	const [queries, setQueries] = useState<SearchQueryMap>({
 		[InputTarget.Artist]: '',
@@ -17,6 +22,7 @@ export function useSearchQueries(): SearchQueriesApi {
 		[InputTarget.Song]: ''
 	})
 
+	/** Applies a functional update to the query string for one list column. */
 	const setQueryFor = useCallback((
 		target: InputTarget,
 		updater: (prev: string) => string
@@ -27,6 +33,7 @@ export function useSearchQueries(): SearchQueriesApi {
 		}))
 	}, [])
 
+	/** Clears the filter text for a single column without affecting the others. */
 	const clearQueryFor = useCallback((target: InputTarget): void => {
 		setQueries((prev: SearchQueryMap): SearchQueryMap => ({
 			...prev,

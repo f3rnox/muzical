@@ -5,6 +5,14 @@ export interface ScrollWindow {
 	end: number
 }
 
+/**
+ * Computes a centered (then edge-clamped) slice window over a long list given the selected index.
+ *
+ * @param itemCount - Total rows in the list.
+ * @param selectedIndex - Currently selected row index (may be `-1` when empty selection).
+ * @param maxVisible - Maximum number of rows to render at once.
+ * @returns Inclusive `[start, end)` slice bounds for `Array.prototype.slice`.
+ */
 export function useScrollWindow(
 	itemCount: number,
 	selectedIndex: number,

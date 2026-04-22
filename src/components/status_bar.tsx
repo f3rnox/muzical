@@ -18,6 +18,11 @@ export interface StatusBarProps {
 	selectedSong: LibrarySong | null
 }
 
+/**
+ * Top status row: library counts, breadcrumb of the current artist/album/title, and formatted duration.
+ *
+ * @param props - Layout width and the currently highlighted entities from the browser state.
+ */
 export default function StatusBar(props: Readonly<StatusBarProps>) {
 	const {
 		width,

@@ -6,6 +6,11 @@ export interface TerminalSize {
 	rows: number
 }
 
+/**
+ * Subscribes to stdout `resize` events and exposes the current terminal column/row counts for layout.
+ *
+ * @returns Latest `{ columns, rows }` from Ink's stdout handle with sensible fallbacks.
+ */
 export function useTerminalSize(): TerminalSize {
 	const { stdout } = useStdout()
 	const [size, setSize] = useState<TerminalSize>({
@@ -14,6 +19,7 @@ export function useTerminalSize(): TerminalSize {
 	})
 
 	useEffect((): (() => void) => {
+		/** Pushes the current stdout dimensions into React state. */
 		const onResize = (): void => {
 			setSize({
 				columns: stdout.columns ?? 80,

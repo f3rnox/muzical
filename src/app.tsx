@@ -24,16 +24,24 @@ import { usePlayer } from './hooks/use_player'
 
 const LIST_ROW_OVERHEAD = 11
 
+/**
+ * Root Ink layout: artist / album / song columns, playback bar, and keyboard-driven search and navigation.
+ *
+ * @param props - Resolved config, full library, and optional injected player (otherwise auto-detected).
+ */
 export default function App(props: Readonly<AppProps>) {
 	const { exit } = useApp()
-	const { library } = props
+	const { library, player: injectedPlayer } = props
 	const { columns, rows } = useTerminalSize()
 	const listMaxRows = Math.max(3, rows - LIST_ROW_OVERHEAD)
 
 	const allAlbums = useLibraryAlbums(library)
 	const allArtistNames = useArtistNames(library)
 
-	const player = useMemo(() => detectPlayer(), [])
+	const player = useMemo(
+		() => injectedPlayer ?? detectPlayer(),
+		[injectedPlayer]
+	)
 	const { playingSong, playerName, playStartedAt, toggle, stop } = usePlayer({ player })
 
 	const [inputTarget, setInputTarget] = useState<InputTarget>(InputTarget.Artist)
@@ -75,6 +83,7 @@ export default function App(props: Readonly<AppProps>) {
 		))
 	), [songsForSelectedAlbum, queries])
 
+	/** Moves the artist selection by `delta` rows within the filtered artist list. */
 	const moveArtist = useCallback((delta: number): void => {
 		const current = visibleArtists.indexOf(selectedArtist)
 		const next = clampIndex(visibleArtists.length, current, delta)
@@ -85,6 +94,7 @@ export default function App(props: Readonly<AppProps>) {
 		}
 	}, [visibleArtists, selectedArtist])
 
+	/** Moves the album selection by `delta` rows within the visible albums for the current artist. */
 	const moveAlbum = useCallback((delta: number): void => {
 		const current = visibleAlbums.findIndex(({ name }): boolean => (
 			name === selectedAlbum?.name
@@ -97,6 +107,7 @@ export default function App(props: Readonly<AppProps>) {
 		}
 	}, [visibleAlbums, selectedAlbum])
 
+	/** Moves the song selection by `delta` rows within the visible track list for the current album. */
 	const moveSong = useCallback((delta: number): void => {
 		const current = visibleSongs.findIndex((song: LibrarySong): boolean => (
 			song.filePath === selectedSong?.filePath
@@ -109,6 +120,7 @@ export default function App(props: Readonly<AppProps>) {
 		}
 	}, [visibleSongs, selectedSong])
 
+	/** Dispatches vertical navigation to the list column that currently owns keyboard focus. */
 	const moveBy = useCallback((delta: number): void => {
 		if (inputTarget === InputTarget.Artist) {
 			moveArtist(delta)
@@ -119,6 +131,7 @@ export default function App(props: Readonly<AppProps>) {
 		}
 	}, [inputTarget, moveArtist, moveAlbum, moveSong])
 
+	/** Jumps the focused list to its first or last visible row (`g` / `G` bindings). */
 	const jumpTo = useCallback((position: JumpPosition): void => {
 		if (inputTarget === InputTarget.Artist) {
 			const name = position === 'start' ? visibleArtists[0] : visibleArtists.at(-1)
@@ -141,6 +154,7 @@ export default function App(props: Readonly<AppProps>) {
 		}
 	}, [inputTarget, visibleArtists, visibleAlbums, visibleSongs])
 
+	/** Moves keyboard focus from album/song column toward the artist column when possible. */
 	const focusPrevColumn = useCallback((): void => {
 		if (inputTarget === InputTarget.Album) {
 			setInputTarget(InputTarget.Artist)
@@ -149,6 +163,7 @@ export default function App(props: Readonly<AppProps>) {
 		}
 	}, [inputTarget])
 
+	/** Moves keyboard focus from artist/album column toward the song column when possible. */
 	const focusNextColumn = useCallback((): void => {
 		if (inputTarget === InputTarget.Artist) {
 			setInputTarget(InputTarget.Album)
@@ -157,6 +172,7 @@ export default function App(props: Readonly<AppProps>) {
 		}
 	}, [inputTarget])
 
+	/** Starts or stops the external player for the currently selected song. */
 	const togglePlayback = useCallback((): void => {
 		toggle(selectedSong)
 	}, [toggle, selectedSong])

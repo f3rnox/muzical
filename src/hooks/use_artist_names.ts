@@ -3,6 +3,12 @@ import { useMemo } from 'react'
 import { type LibrarySong } from '../types'
 import { sortAlphabetical } from '../sort/sort_alphabetical'
 
+/**
+ * Derives a sorted, unique list of artist names from the loaded library metadata.
+ *
+ * @param library - All songs currently in scope.
+ * @returns Sorted artist strings (empty names omitted).
+ */
 export function useArtistNames(library: LibrarySong[]): string[] {
 	return useMemo((): string[] => {
 		const names = new Set<string>()

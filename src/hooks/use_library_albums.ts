@@ -2,6 +2,12 @@ import { useMemo } from 'react'
 
 import { type LibraryAlbum, type LibrarySong } from '../types'
 
+/**
+ * Groups library songs into album buckets keyed by artist+album metadata for the middle TUI column.
+ *
+ * @param library - All songs currently in scope.
+ * @returns Album aggregates with shared artist label and song arrays.
+ */
 export function useLibraryAlbums(library: LibrarySong[]): LibraryAlbum[] {
 	return useMemo((): LibraryAlbum[] => {
 		const map = new Map<string, LibraryAlbum>()

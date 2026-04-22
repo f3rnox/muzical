@@ -2,10 +2,17 @@ import { useEffect, useState } from 'react'
 
 const TICK_MS = 500
 
+/** No-op cleanup for `useEffect` when playback is idle (no interval to clear). */
 function noop(): void {
 	return
 }
 
+/**
+ * Returns elapsed playback seconds since `startedAt`, ticking periodically while playing.
+ *
+ * @param startedAt - Wall-clock ms when the current track began, or `null` when idle.
+ * @returns Elapsed seconds since `startedAt`, or `0` when not playing.
+ */
 export function useElapsedSeconds(startedAt: number | null): number {
 	const [now, setNow] = useState<number>((): number => Date.now())
 

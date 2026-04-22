@@ -17,12 +17,19 @@ export interface PlayerApi {
 	stop: () => void
 }
 
+/**
+ * Manages an external audio player subprocess: play, toggle pause/stop semantics, and lifecycle cleanup.
+ *
+ * @param options - Currently selected {@link PlayerCandidate} (or `null` when none).
+ * @returns Playing state, timestamps, and `toggle` / `stop` controls for the TUI.
+ */
 export function usePlayer(options: Readonly<UsePlayerOptions>): PlayerApi {
 	const { player } = options
 	const [playingSong, setPlayingSong] = useState<LibrarySong | null>(null)
 	const [playStartedAt, setPlayStartedAt] = useState<number | null>(null)
 	const processRef = useRef<ChildProcess | null>(null)
 
+	/** Terminates the active child process and clears listeners without updating React state. */
 	const killCurrent = useCallback((): void => {
 		const proc = processRef.current
 
@@ -36,12 +43,14 @@ export function usePlayer(options: Readonly<UsePlayerOptions>): PlayerApi {
 		processRef.current = null
 	}, [])
 
+	/** Stops playback and clears the current song and elapsed timer state. */
 	const stop = useCallback((): void => {
 		killCurrent()
 		setPlayingSong(null)
 		setPlayStartedAt(null)
 	}, [killCurrent])
 
+	/** Spawns the configured player for `song`, replacing any existing playback. */
 	const play = useCallback((song: Readonly<LibrarySong>): void => {
 		if (player === null) {
 			return
@@ -73,6 +82,7 @@ export function usePlayer(options: Readonly<UsePlayerOptions>): PlayerApi {
 		})
 	}, [player, killCurrent])
 
+	/** Starts `song` when idle or switching tracks; stops when the same track is toggled again. */
 	const toggle = useCallback((song: LibrarySong | null): void => {
 		if (song === null) {
 			return

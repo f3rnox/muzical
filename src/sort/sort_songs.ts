@@ -1,5 +1,12 @@
 import { type LibrarySong } from '../types'
 
+/**
+ * Sorts tracks for album display: disk number, then track number, then title (locale base compare).
+ *
+ * @param a - First song.
+ * @param b - Second song.
+ * @returns Comparator result for stable album ordering.
+ */
 export function sortSongs(a: LibrarySong, b: LibrarySong): number {
 	const da = a.metadata.common.disk?.no ?? 0
 	const db = b.metadata.common.disk?.no ?? 0

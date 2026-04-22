@@ -21,6 +21,11 @@ export interface AppInputHandlers {
 	stopPlayback: () => void
 }
 
+/**
+ * Wires Ink keyboard handling for search mode vs normal navigation, delegating to the provided callbacks.
+ *
+ * @param handlers - Current focus, search state, and motion/playback actions from the app shell.
+ */
 export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 	const {
 		inputTarget,
@@ -38,6 +43,7 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 		stopPlayback
 	} = handlers
 
+	/** Handles keystrokes while the user is typing a filter query (`/` search mode). */
 	const handleSearching = useCallback((input: string, key: Key): void => {
 		if (key.escape) {
 			clearQueryFor(inputTarget)
@@ -75,6 +81,7 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 		}
 	}, [inputTarget, clearQueryFor, setIsSearching, setQueryFor, moveBy])
 
+	/** Handles navigation, column focus, playback, and quit when not in search mode. */
 	const handleNormal = useCallback((input: string, key: Key): void => {
 		if (key.escape) {
 			exit()

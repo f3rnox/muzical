@@ -1,6 +1,13 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
+/**
+ * Recursively walks a directory tree and returns absolute paths to files matching configured song extensions.
+ *
+ * @param dirPath - Root directory to scan.
+ * @param songExtensions - Allowed file extensions (each should include a leading dot).
+ * @returns Absolute paths to matching audio files.
+ */
 const readMusicDir = async (
 	dirPath: string,
 	songExtensions: string[]
