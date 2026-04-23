@@ -412,12 +412,14 @@ export default function App(props: Readonly<AppProps>) {
 					/>
 				)}
 			</Box>
-			<PlaybackBar
-				width={columns}
-				playingSong={playingSong}
-				playerName={playerName}
-				playStartedAt={playStartedAt}
-			/>
+			{appView !== AppView.NowPlaying && (
+				<PlaybackBar
+					width={columns}
+					playingSong={playingSong}
+					playerName={playerName}
+					playStartedAt={playStartedAt}
+				/>
+			)}
 			{appView !== AppView.Config && (
 				<HelpBar
 					isSearching={isSearching}
