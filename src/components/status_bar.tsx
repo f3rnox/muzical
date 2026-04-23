@@ -10,6 +10,7 @@ const BREADCRUMB_MIN_WIDTH = 6
 
 export interface StatusBarProps {
 	width: number
+	volume: number
 	totalSongs: number
 	totalArtists: number
 	totalAlbums: number
@@ -26,6 +27,7 @@ export interface StatusBarProps {
 export default function StatusBar(props: Readonly<StatusBarProps>) {
 	const {
 		width,
+		volume,
 		totalSongs,
 		totalArtists,
 		totalAlbums,
@@ -40,8 +42,8 @@ export default function StatusBar(props: Readonly<StatusBarProps>) {
 	const artistName = selectedArtist || '—'
 
 	const statsText = useMemo((): string => (
-		`${totalArtists} artists · ${totalAlbums} albums · ${totalSongs} songs`
-	), [totalArtists, totalAlbums, totalSongs])
+		`${totalArtists} artists · ${totalAlbums} albums · ${totalSongs} songs · ${volume}% vol`
+	), [totalArtists, totalAlbums, totalSongs, volume])
 
 	const breadcrumbWidth = useMemo((): number => {
 		const inner = Math.max(0, width - STATUS_INNER_OFFSET)

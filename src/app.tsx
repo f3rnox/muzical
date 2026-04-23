@@ -42,7 +42,7 @@ export default function App(props: Readonly<AppProps>) {
 		() => injectedPlayer ?? detectPlayer(),
 		[injectedPlayer]
 	)
-	const { playingSong, playerName, playStartedAt, toggle, stop } = usePlayer({ player })
+	const { playingSong, playerName, playStartedAt, volume, toggle, stop, adjustVolume } = usePlayer({ player })
 
 	const [inputTarget, setInputTarget] = useState<InputTarget>(InputTarget.Artist)
 	const [selectedArtist, setSelectedArtist] = useState<string>('')
@@ -190,7 +190,8 @@ export default function App(props: Readonly<AppProps>) {
 		focusPrevColumn,
 		focusNextColumn,
 		togglePlayback,
-		stopPlayback: stop
+		stopPlayback: stop,
+		adjustVolume
 	})
 
 	useEffect((): void => {
@@ -241,6 +242,7 @@ export default function App(props: Readonly<AppProps>) {
 		<Box flexDirection="column">
 			<StatusBar
 				width={columns}
+				volume={volume}
 				totalSongs={library.length}
 				totalArtists={allArtistNames.length}
 				totalAlbums={allAlbums.length}

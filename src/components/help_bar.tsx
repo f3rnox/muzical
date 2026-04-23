@@ -23,7 +23,7 @@ export default function HelpBar(props: Readonly<HelpBarProps>) {
 	return (
 		<Box paddingX={1}>
 			<Text dimColor wrap="truncate-end">
-				[↑↓/jk] nav · [←→/hl] column · [g/G] top/bot · [pgup/pgdn] page · [enter/p] play · [s] stop · [/] search · [c] clear · [q] quit
+				[↑↓/jk] nav · [←→/hl] column · [g/G] top/bot · [pgup/pgdn] page · [enter/p] play · [s] stop · [+/-] vol · [/] search · [c] clear · [q] quit
 			</Text>
 		</Box>
 	)

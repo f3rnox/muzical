@@ -5,6 +5,8 @@ import { InputTarget } from '../types'
 
 export type JumpPosition = 'start' | 'end'
 
+const VOLUME_KEY_STEP = 5
+
 export interface AppInputHandlers {
 	inputTarget: InputTarget
 	isSearching: boolean
@@ -19,6 +21,7 @@ export interface AppInputHandlers {
 	focusNextColumn: () => void
 	togglePlayback: () => void
 	stopPlayback: () => void
+	adjustVolume: (delta: number) => void
 }
 
 /**
@@ -40,7 +43,8 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 		focusPrevColumn,
 		focusNextColumn,
 		togglePlayback,
-		stopPlayback
+		stopPlayback,
+		adjustVolume
 	} = handlers
 
 	/** Handles keystrokes while the user is typing a filter query (`/` search mode). */
@@ -161,6 +165,18 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 			return
 		}
 
+		if (input === '+' || input === '=') {
+			adjustVolume(VOLUME_KEY_STEP)
+
+			return
+		}
+
+		if (input === '-') {
+			adjustVolume(-VOLUME_KEY_STEP)
+
+			return
+		}
+
 		if (input === 'c') {
 			clearQueryFor(inputTarget)
 		}
@@ -175,7 +191,8 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 		focusPrevColumn,
 		focusNextColumn,
 		togglePlayback,
-		stopPlayback
+		stopPlayback,
+		adjustVolume
 	])
 
 	useInput((input: string, key: Key): void => {
