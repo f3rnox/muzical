@@ -103,4 +103,4 @@ const loadConfig = async (options: Readonly<LoadConfigOptions> = {}): Promise<Co
 }
 
 export default loadConfig
-export { Config }
+export { Config, resolveConfigPath }

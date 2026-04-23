@@ -9,6 +9,14 @@ export enum InputTarget {
 	Artist,
 	Album,
 	Song,
+	Playlist,
+}
+
+export enum AppView {
+	Library,
+	Playlist,
+	NowPlaying,
+	Config,
 }
 
 export interface LibraryAlbum {

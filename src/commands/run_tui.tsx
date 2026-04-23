@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from 'ink'
 
 import App from '../app'
-import loadConfig, { type LoadConfigOptions } from '../load_config'
+import loadConfig, { type LoadConfigOptions, resolveConfigPath } from '../load_config'
 import loadLibrary from '../load_library'
 import loadMusicDir from '../load_music_dir'
 import { resolvePlayer } from '../utils/resolve_player'
@@ -27,13 +27,19 @@ export async function runTui(options: Readonly<RunTuiOptions> = {}): Promise<voi
 
 	try {
 		const config = await loadConfig(options)
+		const configPath = await resolveConfigPath(options.configPath)
 		const { musicDir, songExtensions } = config
 		const musicFiles = await loadMusicDir(musicDir, songExtensions)
 		const library = await loadLibrary(musicFiles)
 		const player = resolvePlayer(options.player ?? null)
 
 		const { waitUntilExit } = render(
-			<App config={config} library={library} player={player} />
+			<App
+				config={config}
+				configPath={configPath}
+				library={library}
+				player={player}
+			/>
 		)
 
 		await waitUntilExit()

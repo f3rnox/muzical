@@ -19,7 +19,8 @@ export function useSearchQueries(): SearchQueriesApi {
 	const [queries, setQueries] = useState<SearchQueryMap>({
 		[InputTarget.Artist]: '',
 		[InputTarget.Album]: '',
-		[InputTarget.Song]: ''
+		[InputTarget.Song]: '',
+		[InputTarget.Playlist]: ''
 	})
 
 	/** Applies a functional update to the query string for one list column. */

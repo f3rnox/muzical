@@ -1,18 +1,20 @@
 import { useCallback } from 'react'
 import { type Key, useInput } from 'ink'
 
-import { InputTarget } from '../types'
+import { AppView, InputTarget } from '../types'
 
 export type JumpPosition = 'start' | 'end'
 
 const VOLUME_KEY_STEP = 5
 
 export interface AppInputHandlers {
+	appView: AppView
 	inputTarget: InputTarget
 	isSearching: boolean
 	listMaxRows: number
 	exit: () => void
 	setIsSearching: (value: boolean) => void
+	setAppView: (view: AppView) => void
 	setQueryFor: (target: InputTarget, updater: (prev: string) => string) => void
 	clearQueryFor: (target: InputTarget) => void
 	moveBy: (delta: number) => void
@@ -22,6 +24,9 @@ export interface AppInputHandlers {
 	togglePlayback: () => void
 	stopPlayback: () => void
 	adjustVolume: (delta: number) => void
+	addFocusedToPlaylist: () => void
+	removeSelectedFromPlaylist: () => void
+	clearPlaylist: () => void
 }
 
 /**
@@ -31,11 +36,13 @@ export interface AppInputHandlers {
  */
 export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 	const {
+		appView,
 		inputTarget,
 		isSearching,
 		listMaxRows,
 		exit,
 		setIsSearching,
+		setAppView,
 		setQueryFor,
 		clearQueryFor,
 		moveBy,
@@ -44,7 +51,10 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 		focusNextColumn,
 		togglePlayback,
 		stopPlayback,
-		adjustVolume
+		adjustVolume,
+		addFocusedToPlaylist,
+		removeSelectedFromPlaylist,
+		clearPlaylist
 	} = handlers
 
 	/** Handles keystrokes while the user is typing a filter query (`/` search mode). */
@@ -99,6 +109,42 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 			return
 		}
 
+		if (input === '1') {
+			setAppView(AppView.Library)
+
+			return
+		}
+
+		if (input === '2') {
+			setAppView(AppView.Playlist)
+
+			return
+		}
+
+		if (input === '3') {
+			setAppView(AppView.NowPlaying)
+
+			return
+		}
+
+		if (input === '4') {
+			setAppView(AppView.Config)
+
+			return
+		}
+
+		if (input === ' ') {
+			if (appView === AppView.Library) {
+				addFocusedToPlaylist()
+			} else if (appView === AppView.Playlist) {
+				removeSelectedFromPlaylist()
+			} else {
+				togglePlayback()
+			}
+
+			return
+		}
+
 		if (key.return || input === 'p') {
 			togglePlayback()
 
@@ -111,19 +157,19 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 			return
 		}
 
-		if (input === '/') {
+		if (input === '/' && appView !== AppView.NowPlaying) {
 			setIsSearching(true)
 
 			return
 		}
 
-		if (key.leftArrow || input === 'h') {
+		if (appView === AppView.Library && (key.leftArrow || input === 'h')) {
 			focusPrevColumn()
 
 			return
 		}
 
-		if (key.rightArrow || input === 'l') {
+		if (appView === AppView.Library && (key.rightArrow || input === 'l')) {
 			focusNextColumn()
 
 			return
@@ -178,13 +224,19 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 		}
 
 		if (input === 'c') {
-			clearQueryFor(inputTarget)
+			if (appView === AppView.Playlist) {
+				clearPlaylist()
+			} else {
+				clearQueryFor(inputTarget)
+			}
 		}
 	}, [
+		appView,
 		inputTarget,
 		listMaxRows,
 		exit,
 		setIsSearching,
+		setAppView,
 		clearQueryFor,
 		moveBy,
 		jumpTo,
@@ -192,10 +244,17 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 		focusNextColumn,
 		togglePlayback,
 		stopPlayback,
-		adjustVolume
+		adjustVolume,
+		addFocusedToPlaylist,
+		removeSelectedFromPlaylist,
+		clearPlaylist
 	])
 
 	useInput((input: string, key: Key): void => {
+		if (appView === AppView.Config) {
+			return
+		}
+
 		if (isSearching) {
 			handleSearching(input, key)
 

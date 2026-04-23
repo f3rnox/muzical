@@ -2,14 +2,15 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Box, useApp } from 'ink'
 
 import { type AppProps } from './components/app_props'
-import ArtistList from './components/artist_list'
-import AlbumList from './components/album_list'
-import SongList from './components/song_list'
 import StatusBar from './components/status_bar'
 import PlaybackBar from './components/playback_bar'
 import HelpBar from './components/help_bar'
-import { type LibraryAlbum, InputTarget } from './types'
-import { type LibrarySong } from './types'
+import LibraryView from './views/library_view'
+import PlaylistView from './views/playlist_view'
+import NowPlayingView from './views/now_playing_view'
+import ConfigView from './views/config_view'
+import { type Config } from './load_config'
+import { type LibraryAlbum, type LibrarySong, AppView, InputTarget } from './types'
 import { clampIndex } from './utils/clamp_index'
 import { matchesQuery } from './utils/matches_query'
 import { sortAlphabetical } from './sort/sort_alphabetical'
@@ -31,7 +32,8 @@ const LIST_ROW_OVERHEAD = 11
  */
 export default function App(props: Readonly<AppProps>) {
 	const { exit } = useApp()
-	const { library, player: injectedPlayer } = props
+	const { library, player: injectedPlayer, configPath } = props
+	const [config, setConfig] = useState<Config>(props.config)
 	const { columns, rows } = useTerminalSize()
 	const listMaxRows = Math.max(3, rows - LIST_ROW_OVERHEAD)
 
@@ -44,14 +46,20 @@ export default function App(props: Readonly<AppProps>) {
 	)
 	const { playingSong, playerName, playStartedAt, volume, toggle, stop, adjustVolume } = usePlayer({ player })
 
+	const [appView, setAppView] = useState<AppView>(AppView.Library)
 	const [inputTarget, setInputTarget] = useState<InputTarget>(InputTarget.Artist)
 	const [selectedArtist, setSelectedArtist] = useState<string>('')
 	const [selectedAlbum, setSelectedAlbum] = useState<LibraryAlbum | null>(null)
 	const [selectedSong, setSelectedSong] = useState<LibrarySong | null>(null)
+	const [playlistSongs, setPlaylistSongs] = useState<LibrarySong[]>([])
+	const [selectedPlaylistSong, setSelectedPlaylistSong] = useState<LibrarySong | null>(null)
 	const [isSearching, setIsSearching] = useState<boolean>(false)
 	const { queries, setQueryFor, clearQueryFor } = useSearchQueries()
 
-	const activeQuery = queries[inputTarget]
+	const effectiveInputTarget = appView === AppView.Playlist
+		? InputTarget.Playlist
+		: inputTarget
+	const activeQuery = queries[effectiveInputTarget]
 
 	const visibleArtists = useMemo((): string[] => (
 		allArtistNames.filter((name: string): boolean => (
@@ -83,7 +91,14 @@ export default function App(props: Readonly<AppProps>) {
 		))
 	), [songsForSelectedAlbum, queries])
 
-	/** Moves the artist selection by `delta` rows within the filtered artist list. */
+	const visiblePlaylistSongs = useMemo((): LibrarySong[] => (
+		playlistSongs.filter((song: LibrarySong): boolean => {
+			const { title, artist } = song.metadata.common
+			const haystack = `${artist ?? ''} ${title ?? ''}`.trim()
+			return matchesQuery(haystack, queries[InputTarget.Playlist])
+		})
+	), [playlistSongs, queries])
+
 	const moveArtist = useCallback((delta: number): void => {
 		const current = visibleArtists.indexOf(selectedArtist)
 		const next = clampIndex(visibleArtists.length, current, delta)
@@ -94,7 +109,6 @@ export default function App(props: Readonly<AppProps>) {
 		}
 	}, [visibleArtists, selectedArtist])
 
-	/** Moves the album selection by `delta` rows within the visible albums for the current artist. */
 	const moveAlbum = useCallback((delta: number): void => {
 		const current = visibleAlbums.findIndex(({ name }): boolean => (
 			name === selectedAlbum?.name
@@ -107,7 +121,6 @@ export default function App(props: Readonly<AppProps>) {
 		}
 	}, [visibleAlbums, selectedAlbum])
 
-	/** Moves the song selection by `delta` rows within the visible track list for the current album. */
 	const moveSong = useCallback((delta: number): void => {
 		const current = visibleSongs.findIndex((song: LibrarySong): boolean => (
 			song.filePath === selectedSong?.filePath
@@ -120,8 +133,25 @@ export default function App(props: Readonly<AppProps>) {
 		}
 	}, [visibleSongs, selectedSong])
 
-	/** Dispatches vertical navigation to the list column that currently owns keyboard focus. */
+	const movePlaylistSong = useCallback((delta: number): void => {
+		const current = visiblePlaylistSongs.findIndex((song: LibrarySong): boolean => (
+			song.filePath === selectedPlaylistSong?.filePath
+		))
+		const next = clampIndex(visiblePlaylistSongs.length, current, delta)
+		const song = next === -1 ? undefined : visiblePlaylistSongs[next]
+
+		if (song !== undefined) {
+			setSelectedPlaylistSong(song)
+		}
+	}, [visiblePlaylistSongs, selectedPlaylistSong])
+
 	const moveBy = useCallback((delta: number): void => {
+		if (appView === AppView.Playlist) {
+			movePlaylistSong(delta)
+
+			return
+		}
+
 		if (inputTarget === InputTarget.Artist) {
 			moveArtist(delta)
 		} else if (inputTarget === InputTarget.Album) {
@@ -129,10 +159,21 @@ export default function App(props: Readonly<AppProps>) {
 		} else {
 			moveSong(delta)
 		}
-	}, [inputTarget, moveArtist, moveAlbum, moveSong])
+	}, [appView, inputTarget, moveArtist, moveAlbum, moveSong, movePlaylistSong])
 
-	/** Jumps the focused list to its first or last visible row (`g` / `G` bindings). */
 	const jumpTo = useCallback((position: JumpPosition): void => {
+		if (appView === AppView.Playlist) {
+			const song = position === 'start'
+				? visiblePlaylistSongs[0]
+				: visiblePlaylistSongs.at(-1)
+
+			if (song !== undefined) {
+				setSelectedPlaylistSong(song)
+			}
+
+			return
+		}
+
 		if (inputTarget === InputTarget.Artist) {
 			const name = position === 'start' ? visibleArtists[0] : visibleArtists.at(-1)
 
@@ -152,9 +193,8 @@ export default function App(props: Readonly<AppProps>) {
 				setSelectedSong(song)
 			}
 		}
-	}, [inputTarget, visibleArtists, visibleAlbums, visibleSongs])
+	}, [appView, inputTarget, visibleArtists, visibleAlbums, visibleSongs, visiblePlaylistSongs])
 
-	/** Moves keyboard focus from album/song column toward the artist column when possible. */
 	const focusPrevColumn = useCallback((): void => {
 		if (inputTarget === InputTarget.Album) {
 			setInputTarget(InputTarget.Artist)
@@ -163,7 +203,6 @@ export default function App(props: Readonly<AppProps>) {
 		}
 	}, [inputTarget])
 
-	/** Moves keyboard focus from artist/album column toward the song column when possible. */
 	const focusNextColumn = useCallback((): void => {
 		if (inputTarget === InputTarget.Artist) {
 			setInputTarget(InputTarget.Album)
@@ -172,17 +211,78 @@ export default function App(props: Readonly<AppProps>) {
 		}
 	}, [inputTarget])
 
-	/** Starts or stops the external player for the currently selected song. */
 	const togglePlayback = useCallback((): void => {
-		toggle(selectedSong)
-	}, [toggle, selectedSong])
+		const target = appView === AppView.Playlist ? selectedPlaylistSong : selectedSong
+		toggle(target)
+	}, [appView, toggle, selectedSong, selectedPlaylistSong])
+
+	const appendToPlaylist = useCallback((candidates: LibrarySong[]): void => {
+		if (candidates.length === 0) {
+			return
+		}
+
+		setPlaylistSongs((prev: LibrarySong[]): LibrarySong[] => {
+			const existing = new Set<string>(prev.map((song: LibrarySong): string => song.filePath))
+			const additions = candidates.filter((song: LibrarySong): boolean => (
+				!existing.has(song.filePath)
+			))
+
+			if (additions.length === 0) {
+				return prev
+			}
+
+			return [...prev, ...additions]
+		})
+	}, [])
+
+	const addFocusedToPlaylist = useCallback((): void => {
+		if (inputTarget === InputTarget.Artist) {
+			const songs = allAlbums
+				.filter(({ artists }): boolean => artists.includes(selectedArtist))
+				.flatMap(({ songs: albumSongs }): LibrarySong[] => albumSongs)
+				.sort(sortSongs)
+			appendToPlaylist(songs)
+
+			return
+		}
+
+		if (inputTarget === InputTarget.Album) {
+			const songs = [...(selectedAlbum?.songs ?? [])].sort(sortSongs)
+			appendToPlaylist(songs)
+
+			return
+		}
+
+		if (selectedSong !== null) {
+			appendToPlaylist([selectedSong])
+		}
+	}, [inputTarget, allAlbums, selectedArtist, selectedAlbum, selectedSong, appendToPlaylist])
+
+	const removeSelectedFromPlaylist = useCallback((): void => {
+		if (selectedPlaylistSong === null) {
+			return
+		}
+
+		const removedPath = selectedPlaylistSong.filePath
+		setPlaylistSongs((prev: LibrarySong[]): LibrarySong[] => (
+			prev.filter((song: LibrarySong): boolean => song.filePath !== removedPath)
+		))
+	}, [selectedPlaylistSong])
+
+	/** Empties the playlist and clears the playlist selection. */
+	const clearPlaylist = useCallback((): void => {
+		setPlaylistSongs([])
+		setSelectedPlaylistSong(null)
+	}, [])
 
 	useAppInput({
-		inputTarget,
+		appView,
+		inputTarget: effectiveInputTarget,
 		isSearching,
 		listMaxRows,
 		exit,
 		setIsSearching,
+		setAppView,
 		setQueryFor,
 		clearQueryFor,
 		moveBy,
@@ -191,7 +291,10 @@ export default function App(props: Readonly<AppProps>) {
 		focusNextColumn,
 		togglePlayback,
 		stopPlayback: stop,
-		adjustVolume
+		adjustVolume,
+		addFocusedToPlaylist,
+		removeSelectedFromPlaylist,
+		clearPlaylist
 	})
 
 	useEffect((): void => {
@@ -238,6 +341,22 @@ export default function App(props: Readonly<AppProps>) {
 		}
 	}, [visibleSongs, selectedSong])
 
+	useEffect((): void => {
+		if (visiblePlaylistSongs.length === 0) {
+			setSelectedPlaylistSong(null)
+
+			return
+		}
+
+		const stillPresent = visiblePlaylistSongs.some((song: LibrarySong): boolean => (
+			song.filePath === selectedPlaylistSong?.filePath
+		))
+
+		if (!stillPresent) {
+			setSelectedPlaylistSong(visiblePlaylistSongs[0] ?? null)
+		}
+	}, [visiblePlaylistSongs, selectedPlaylistSong])
+
 	return (
 		<Box flexDirection="column">
 			<StatusBar
@@ -251,27 +370,47 @@ export default function App(props: Readonly<AppProps>) {
 				selectedSong={selectedSong}
 			/>
 			<Box flexGrow={1}>
-				<ArtistList
-					artistNames={visibleArtists}
-					selectedArtist={selectedArtist}
-					inputTarget={inputTarget}
-					maxRows={listMaxRows}
-					totalCount={allArtistNames.length}
-				/>
-				<AlbumList
-					albumsForSelectedArtist={visibleAlbums}
-					selectedAlbum={selectedAlbum}
-					inputTarget={inputTarget}
-					maxRows={listMaxRows}
-					totalCount={albumsForSelectedArtist.length}
-				/>
-				<SongList
-					songs={visibleSongs}
-					selectedSong={selectedSong}
-					inputTarget={inputTarget}
-					maxRows={listMaxRows}
-					totalCount={songsForSelectedAlbum.length}
-				/>
+				{appView === AppView.Library && (
+					<LibraryView
+						inputTarget={inputTarget}
+						maxRows={listMaxRows}
+						visibleArtists={visibleArtists}
+						selectedArtist={selectedArtist}
+						totalArtistCount={allArtistNames.length}
+						visibleAlbums={visibleAlbums}
+						selectedAlbum={selectedAlbum}
+						totalAlbumCount={albumsForSelectedArtist.length}
+						visibleSongs={visibleSongs}
+						selectedSong={selectedSong}
+						totalSongCount={songsForSelectedAlbum.length}
+					/>
+				)}
+				{appView === AppView.Playlist && (
+					<PlaylistView
+						maxRows={listMaxRows}
+						visibleSongs={visiblePlaylistSongs}
+						selectedSong={selectedPlaylistSong}
+						totalCount={playlistSongs.length}
+					/>
+				)}
+				{appView === AppView.NowPlaying && (
+					<NowPlayingView
+						width={columns}
+						playingSong={playingSong}
+						playerName={playerName}
+						playStartedAt={playStartedAt}
+						volume={volume}
+					/>
+				)}
+				{appView === AppView.Config && (
+					<ConfigView
+						config={config}
+						configPath={configPath}
+						setAppView={setAppView}
+						exit={exit}
+						onConfigChange={setConfig}
+					/>
+				)}
 			</Box>
 			<PlaybackBar
 				width={columns}
@@ -279,7 +418,13 @@ export default function App(props: Readonly<AppProps>) {
 				playerName={playerName}
 				playStartedAt={playStartedAt}
 			/>
-			<HelpBar isSearching={isSearching} searchQuery={activeQuery} />
+			{appView !== AppView.Config && (
+				<HelpBar
+					isSearching={isSearching}
+					searchQuery={activeQuery}
+					appView={appView}
+				/>
+			)}
 		</Box>
 	)
 }
