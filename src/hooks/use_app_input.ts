@@ -18,6 +18,7 @@ export interface AppInputHandlers {
 	setQueryFor: (target: InputTarget, updater: (prev: string) => string) => void
 	clearQueryFor: (target: InputTarget) => void
 	moveBy: (delta: number) => void
+	playPlaylistRelative: (delta: number) => void
 	jumpTo: (position: JumpPosition) => void
 	focusPrevColumn: () => void
 	focusNextColumn: () => void
@@ -46,6 +47,7 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 		setQueryFor,
 		clearQueryFor,
 		moveBy,
+		playPlaylistRelative,
 		jumpTo,
 		focusPrevColumn,
 		focusNextColumn,
@@ -90,10 +92,22 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 			return
 		}
 
+		if (input === '<') {
+			playPlaylistRelative(-1)
+
+			return
+		}
+
+		if (input === '>') {
+			playPlaylistRelative(1)
+
+			return
+		}
+
 		if (input.length > 0 && !key.ctrl && !key.meta) {
 			setQueryFor(inputTarget, (prev: string): string => prev + input)
 		}
-	}, [inputTarget, clearQueryFor, setIsSearching, setQueryFor, moveBy])
+	}, [inputTarget, clearQueryFor, setIsSearching, setQueryFor, moveBy, playPlaylistRelative])
 
 	/** Handles navigation, column focus, playback, and quit when not in search mode. */
 	/** Handles quit and app-view switching keys in normal mode. */
@@ -134,6 +148,12 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 			return true
 		}
 
+		if (input === '6') {
+			setAppView(AppView.Visualizer)
+
+			return true
+		}
+
 		return false
 	}, [exit, setAppView])
 
@@ -163,7 +183,7 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 			return true
 		}
 
-		if (input === '/' && appView !== AppView.NowPlaying) {
+		if (input === '/' && appView !== AppView.NowPlaying && appView !== AppView.Visualizer) {
 			setIsSearching(true)
 
 			return true
@@ -202,6 +222,18 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 
 	/** Handles vertical list movement and jump keys in normal mode. */
 	const handleListMovement = useCallback((input: string, key: Key): boolean => {
+		if (input === '<') {
+			playPlaylistRelative(-1)
+
+			return true
+		}
+
+		if (input === '>') {
+			playPlaylistRelative(1)
+
+			return true
+		}
+
 		if (key.upArrow || input === 'k') {
 			moveBy(-1)
 
@@ -239,7 +271,7 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 		}
 
 		return false
-	}, [listMaxRows, moveBy, jumpTo])
+	}, [listMaxRows, moveBy, playPlaylistRelative, jumpTo])
 
 	/** Handles volume control and clear actions in normal mode. */
 	const handleVolumeAndClear = useCallback((input: string): boolean => {

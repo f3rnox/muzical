@@ -9,9 +9,10 @@ interface Hint {
 }
 
 const LIBRARY_HINTS: Hint[] = [
-	{ keys: '1/2/3/4/5', label: 'view' },
+	{ keys: '1/2/3/4/5/6', label: 'view' },
 	{ keys: '↑↓/jk', label: 'nav' },
 	{ keys: '←→/hl', label: 'column' },
+	{ keys: '<>', label: 'prev/next pl' },
 	{ keys: 'space', label: '+playlist' },
 	{ keys: 'g/G', label: 'top/bot' },
 	{ keys: 'pgup/pgdn', label: 'page' },
@@ -24,8 +25,9 @@ const LIBRARY_HINTS: Hint[] = [
 ]
 
 const PLAYLIST_HINTS: Hint[] = [
-	{ keys: '1/2/3/4/5', label: 'view' },
+	{ keys: '1/2/3/4/5/6', label: 'view' },
 	{ keys: '↑↓/jk', label: 'nav' },
+	{ keys: '<>', label: 'prev/next pl' },
 	{ keys: 'space', label: 'remove' },
 	{ keys: 'c', label: 'clear playlist' },
 	{ keys: 'g/G', label: 'top/bot' },
@@ -38,7 +40,15 @@ const PLAYLIST_HINTS: Hint[] = [
 ]
 
 const NOW_PLAYING_HINTS: Hint[] = [
-	{ keys: '1/2/3/4/5', label: 'view' },
+	{ keys: '1/2/3/4/5/6', label: 'view' },
+	{ keys: 'enter/p/space', label: 'play' },
+	{ keys: 's', label: 'stop' },
+	{ keys: '+/-', label: 'vol' },
+	{ keys: 'q', label: 'quit' }
+]
+
+const VISUALIZER_HINTS: Hint[] = [
+	{ keys: '1/2/3/4/5/6', label: 'view' },
 	{ keys: 'enter/p/space', label: 'play' },
 	{ keys: 's', label: 'stop' },
 	{ keys: '+/-', label: 'vol' },
@@ -53,6 +63,10 @@ function hintsForView(appView: AppView): Hint[] {
 
 	if (appView === AppView.Playlist) {
 		return PLAYLIST_HINTS
+	}
+
+	if (appView === AppView.Visualizer) {
+		return VISUALIZER_HINTS
 	}
 
 	return NOW_PLAYING_HINTS

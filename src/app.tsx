@@ -10,6 +10,7 @@ import PlaylistView from './views/playlist_view'
 import NowPlayingView from './views/now_playing_view'
 import SoulseekView from './views/soulseek_view'
 import ConfigView from './views/config_view'
+import VisualizerView from './views/visualizer_view'
 import { type Config } from './load_config'
 import { type LibraryAlbum, type LibrarySong, AppView, InputTarget } from './types'
 import { clampIndex } from './utils/clamp_index'
@@ -55,7 +56,7 @@ export default function App(props: Readonly<AppProps>) {
 		() => injectedPlayer ?? detectPlayer(),
 		[injectedPlayer]
 	)
-	const { playingSong, playerName, playStartedAt, volume, toggle, stop, adjustVolume } = usePlayer({ player })
+	const { playingSong, playerName, playStartedAt, volume, play, toggle, stop, adjustVolume } = usePlayer({ player })
 
 	const [appView, setAppView] = useState<AppView>(AppView.Library)
 	const [inputTarget, setInputTarget] = useState<InputTarget>(InputTarget.Artist)
@@ -171,6 +172,46 @@ export default function App(props: Readonly<AppProps>) {
 			moveSong(delta)
 		}
 	}, [appView, inputTarget, moveArtist, moveAlbum, moveSong, movePlaylistSong])
+
+	/**
+	 * Plays the next or previous track in the global playlist, updating the playlist selection to match.
+	 *
+	 * @param delta - -1 for previous, +1 for next.
+	 */
+	const playPlaylistRelative = useCallback((delta: number): void => {
+		if (playlistSongs.length === 0) {
+			return
+		}
+
+		const indexForPath = (filePath: string | undefined): number => (
+			filePath === undefined
+				? -1
+				: playlistSongs.findIndex((song: LibrarySong): boolean => song.filePath === filePath)
+		)
+
+		let i = indexForPath(playingSong?.filePath)
+
+		if (i === -1) {
+			i = indexForPath(selectedPlaylistSong?.filePath)
+		}
+
+		const nextIndex: number = ((): number => {
+			if (i === -1) {
+				return delta > 0 ? 0 : playlistSongs.length - 1
+			}
+
+			return clampIndex(playlistSongs.length, i, delta)
+		})()
+
+		const target = playlistSongs[nextIndex]
+
+		if (target === undefined) {
+			return
+		}
+
+		setSelectedPlaylistSong(target)
+		play(target)
+	}, [playlistSongs, playingSong, selectedPlaylistSong, play])
 
 	const jumpPlaylistSong = useCallback((position: JumpPosition): void => {
 		const song = getEdgeItem(visiblePlaylistSongs, position)
@@ -311,6 +352,7 @@ export default function App(props: Readonly<AppProps>) {
 		setQueryFor,
 		clearQueryFor,
 		moveBy,
+		playPlaylistRelative,
 		jumpTo,
 		focusPrevColumn,
 		focusNextColumn,
@@ -444,6 +486,14 @@ export default function App(props: Readonly<AppProps>) {
 						setAppView={setAppView}
 						exit={exit}
 						onConfigChange={setConfig}
+					/>
+				)}
+				{appView === AppView.Visualizer && (
+					<VisualizerView
+						width={columns}
+						height={rows}
+						playingSong={playingSong}
+						playerName={playerName}
 					/>
 				)}
 			</Box>

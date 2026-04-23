@@ -20,6 +20,7 @@ export interface PlayerApi {
 	playStartedAt: number | null
 	volume: number
 	adjustVolume: (delta: number) => void
+	play: (song: Readonly<LibrarySong>) => void
 	toggle: (song: LibrarySong | null) => void
 	stop: () => void
 }
@@ -165,6 +166,7 @@ export function usePlayer(options: Readonly<UsePlayerOptions>): PlayerApi {
 		playStartedAt,
 		volume,
 		adjustVolume,
+		play,
 		toggle,
 		stop
 	}

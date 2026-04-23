@@ -18,6 +18,7 @@ export enum AppView {
 	NowPlaying,
 	Soulseek,
 	Config,
+	Visualizer,
 }
 
 export interface LibraryAlbum {
