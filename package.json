@@ -1,7 +1,7 @@
 {
   "name": "muzical",
   "type": "module",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A Node.JS CLI Music Player",
   "keywords": [
     "music",
