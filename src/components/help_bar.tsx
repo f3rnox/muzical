@@ -9,7 +9,7 @@ interface Hint {
 }
 
 const LIBRARY_HINTS: Hint[] = [
-	{ keys: '1/2/3/4', label: 'view' },
+	{ keys: '1/2/3/4/5', label: 'view' },
 	{ keys: '↑↓/jk', label: 'nav' },
 	{ keys: '←→/hl', label: 'column' },
 	{ keys: 'space', label: '+playlist' },
@@ -24,7 +24,7 @@ const LIBRARY_HINTS: Hint[] = [
 ]
 
 const PLAYLIST_HINTS: Hint[] = [
-	{ keys: '1/2/3/4', label: 'view' },
+	{ keys: '1/2/3/4/5', label: 'view' },
 	{ keys: '↑↓/jk', label: 'nav' },
 	{ keys: 'space', label: 'remove' },
 	{ keys: 'c', label: 'clear playlist' },
@@ -38,7 +38,7 @@ const PLAYLIST_HINTS: Hint[] = [
 ]
 
 const NOW_PLAYING_HINTS: Hint[] = [
-	{ keys: '1/2/3/4', label: 'view' },
+	{ keys: '1/2/3/4/5', label: 'view' },
 	{ keys: 'enter/p/space', label: 'play' },
 	{ keys: 's', label: 'stop' },
 	{ keys: '+/-', label: 'vol' },

@@ -60,7 +60,8 @@
     "serve:coverage": "http-server ./coverage",
     "serve:docs": "http-server ./docs",
     "start": "tsx src/index.tsx",
-    "test": "NODE_PATH=./src NODE_ENV=test vitest",
+    "test": "NODE_PATH=./src NODE_ENV=test mocha",
+    "test:vitest": "NODE_PATH=./src NODE_ENV=test vitest",
     "update-deps": "updates -u -g -c",
     "update-version": "standard-version -a"
   },
@@ -72,7 +73,8 @@
     "lodash": "^4.18.1",
     "music-metadata": "^11.12.3",
     "p-iteration": "^1.1.8",
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "soulseek-ts": "^2.1.4"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
@@ -81,9 +83,12 @@
     "@commitlint/types": "^20.5.0",
     "@eslint/js": "^10.0.1",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@types/chai": "^5.2.3",
     "@types/lodash": "^4.17.24",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^25.5.2",
     "@types/react": "^19.2.14",
+    "chai": "^6.2.2",
     "esbuild": "^0.25.12",
     "eslint": "^10.2.0",
     "eslint-plugin-package-json": "^0.91.1",
@@ -93,6 +98,7 @@
     "jiti": "^2.6.1",
     "lint-staged": "^16.4.0",
     "markdownlint-cli": "^0.48.0",
+    "mocha": "^11.7.5",
     "nyc": "^18.0.0",
     "prettier": "^3.8.1",
     "remark": "^15.0.1",

@@ -6,12 +6,13 @@ import { type Config } from '../load_config'
 import { AppView } from '../types'
 import { writeConfig } from '../utils/write_config'
 
-type FieldId = 'musicDir' | 'songExtensions'
+type FieldId = 'musicDir' | 'songExtensions' | 'soulseekUsername' | 'soulseekPassword'
 
 interface FieldMeta {
 	id: FieldId
 	label: string
 	help: string
+	secret?: boolean
 }
 
 const FIELDS: FieldMeta[] = [
@@ -24,6 +25,17 @@ const FIELDS: FieldMeta[] = [
 		id: 'songExtensions',
 		label: 'Song Extensions',
 		help: 'comma-separated list (e.g. .mp3, .flac)'
+	},
+	{
+		id: 'soulseekUsername',
+		label: 'Soulseek Username',
+		help: 'account for the Soulseek browser view'
+	},
+	{
+		id: 'soulseekPassword',
+		label: 'Soulseek Password',
+		help: 'stored in plaintext in your config file',
+		secret: true
 	}
 ]
 
@@ -61,7 +73,15 @@ function readField(config: Readonly<Config>, id: FieldId): string {
 		return config.musicDir
 	}
 
-	return config.songExtensions.join(', ')
+	if (id === 'songExtensions') {
+		return config.songExtensions.join(', ')
+	}
+
+	if (id === 'soulseekUsername') {
+		return config.soulseekUsername
+	}
+
+	return config.soulseekPassword
 }
 
 /**
@@ -77,7 +97,15 @@ function applyField(config: Readonly<Config>, id: FieldId, draft: string): Confi
 		return { ...config, musicDir: draft.trim() }
 	}
 
-	return { ...config, songExtensions: parseExtensions(draft) }
+	if (id === 'songExtensions') {
+		return { ...config, songExtensions: parseExtensions(draft) }
+	}
+
+	if (id === 'soulseekUsername') {
+		return { ...config, soulseekUsername: draft.trim() }
+	}
+
+	return { ...config, soulseekPassword: draft }
 }
 
 /**
@@ -195,6 +223,12 @@ export default function ConfigView(props: Readonly<ConfigViewProps>) {
 		}
 
 		if (input === '4') {
+			setAppView(AppView.Soulseek)
+
+			return
+		}
+
+		if (input === '5') {
 			setAppView(AppView.Config)
 
 			return
@@ -243,7 +277,10 @@ export default function ConfigView(props: Readonly<ConfigViewProps>) {
 			{FIELDS.map((field: FieldMeta, index: number): React.ReactElement => {
 				const isFocused = index === focusIndex
 				const isEditing = editingId === field.id
-				const value = isEditing ? draft : readField(config, field.id)
+				const rawValue = isEditing ? draft : readField(config, field.id)
+				const value = field.secret === true && !isEditing && rawValue.length > 0
+					? '•'.repeat(Math.min(rawValue.length, 12))
+					: rawValue
 				const labelColor = isFocused ? 'cyan' : 'gray'
 
 				return (
@@ -271,7 +308,7 @@ export default function ConfigView(props: Readonly<ConfigViewProps>) {
 				<Text dimColor wrap="truncate-end">
 					{editingId !== null
 						? '[enter] save · [esc] cancel · [backspace] delete'
-						: '[↑↓/jk] nav · [enter/i] edit · [1/2/3/4] view · [q] quit'}
+						: '[↑↓/jk] nav · [enter/i] edit · [1/2/3/4/5] view · [q] quit'}
 				</Text>
 				{status.length > 0 ? (
 					<Text color="green">{status}</Text>

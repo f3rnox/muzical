@@ -8,12 +8,16 @@ const DEFAULT_SONG_EXTENSIONS: string[] = ['.mp3', '.flac']
 interface Config {
 	musicDir: string
 	songExtensions: string[]
+	soulseekUsername: string
+	soulseekPassword: string
 }
 
 export interface LoadConfigOptions {
 	configPath?: string
 	musicDir?: string
 	songExtensions?: string[]
+	soulseekUsername?: string
+	soulseekPassword?: string
 }
 
 const CONFIG_FN = 'config.json'
@@ -62,15 +66,24 @@ const loadConfig = async (options: Readonly<LoadConfigOptions> = {}): Promise<Co
 
 	let fileMusicDir: string | undefined
 	let fileExtensions: string[] | undefined
+	let fileSoulseekUsername: string | undefined
+	let fileSoulseekPassword: string | undefined
 
 	try {
 		await fs.access(configPath)
 		const configJSON = await fs.readFile(configPath, 'utf-8')
 
 		try {
-			const data: { musicDir?: string, songExtensions?: string[] } = JSON.parse(configJSON)
+			const data: {
+				musicDir?: string
+				songExtensions?: string[]
+				soulseekUsername?: string
+				soulseekPassword?: string
+			} = JSON.parse(configJSON)
 			fileMusicDir = data.musicDir
 			fileExtensions = data.songExtensions
+			fileSoulseekUsername = data.soulseekUsername
+			fileSoulseekPassword = data.soulseekPassword
 		} catch (error: unknown) {
 			throw new Error('Config file contains invalid JSON', { cause: error })
 		}
@@ -98,7 +111,9 @@ const loadConfig = async (options: Readonly<LoadConfigOptions> = {}): Promise<Co
 
 	return {
 		musicDir: path.resolve(musicDir),
-		songExtensions: extensions.map(normalizeExtension)
+		songExtensions: extensions.map(normalizeExtension),
+		soulseekUsername: options.soulseekUsername ?? fileSoulseekUsername ?? '',
+		soulseekPassword: options.soulseekPassword ?? fileSoulseekPassword ?? ''
 	}
 }
 

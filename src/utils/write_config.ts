@@ -18,7 +18,9 @@ export async function writeConfig(
 
 	const serializable = {
 		musicDir: config.musicDir,
-		songExtensions: config.songExtensions
+		songExtensions: config.songExtensions,
+		soulseekUsername: config.soulseekUsername,
+		soulseekPassword: config.soulseekPassword
 	}
 
 	await fs.writeFile(configPath, `${JSON.stringify(serializable, null, 2)}\n`, 'utf-8')

@@ -105,7 +105,7 @@ export function usePlayer(options: Readonly<UsePlayerOptions>): PlayerApi {
 		const thisMpvIpc: string | null = mpvIpc
 		const args = buildPlayerArgs(player, song.filePath, {
 			volume,
-			...(mpvIpc !== null ? { mpvIpcPath: mpvIpc } : {})
+			...(mpvIpc === null ? {} : { mpvIpcPath: mpvIpc })
 		})
 		const proc = spawn(player.bin, args, { stdio: 'ignore' })
 

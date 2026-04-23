@@ -8,6 +8,7 @@ import HelpBar from './components/help_bar'
 import LibraryView from './views/library_view'
 import PlaylistView from './views/playlist_view'
 import NowPlayingView from './views/now_playing_view'
+import SoulseekView from './views/soulseek_view'
 import ConfigView from './views/config_view'
 import { type Config } from './load_config'
 import { type LibraryAlbum, type LibrarySong, AppView, InputTarget } from './types'
@@ -24,6 +25,16 @@ import { detectPlayer } from './utils/detect_player'
 import { usePlayer } from './hooks/use_player'
 
 const LIST_ROW_OVERHEAD = 11
+
+/**
+ * Returns the first or last item in a list based on jump position.
+ *
+ * @param items - Items to inspect.
+ * @param position - Whether to jump to list start or end.
+ */
+function getEdgeItem<T>(items: readonly T[], position: JumpPosition): T | undefined {
+	return position === 'start' ? items[0] : items.at(-1)
+}
 
 /**
  * Root Ink layout: artist / album / song columns, playback bar, and keyboard-driven search and navigation.
@@ -161,39 +172,53 @@ export default function App(props: Readonly<AppProps>) {
 		}
 	}, [appView, inputTarget, moveArtist, moveAlbum, moveSong, movePlaylistSong])
 
+	const jumpPlaylistSong = useCallback((position: JumpPosition): void => {
+		const song = getEdgeItem(visiblePlaylistSongs, position)
+
+		if (song !== undefined) {
+			setSelectedPlaylistSong(song)
+		}
+	}, [visiblePlaylistSongs])
+
+	const jumpArtist = useCallback((position: JumpPosition): void => {
+		const name = getEdgeItem(visibleArtists, position)
+
+		if (name !== undefined) {
+			setSelectedArtist(name)
+		}
+	}, [visibleArtists])
+
+	const jumpAlbum = useCallback((position: JumpPosition): void => {
+		const album = getEdgeItem(visibleAlbums, position)
+
+		if (album !== undefined) {
+			setSelectedAlbum(album)
+		}
+	}, [visibleAlbums])
+
+	const jumpSong = useCallback((position: JumpPosition): void => {
+		const song = getEdgeItem(visibleSongs, position)
+
+		if (song !== undefined) {
+			setSelectedSong(song)
+		}
+	}, [visibleSongs])
+
 	const jumpTo = useCallback((position: JumpPosition): void => {
 		if (appView === AppView.Playlist) {
-			const song = position === 'start'
-				? visiblePlaylistSongs[0]
-				: visiblePlaylistSongs.at(-1)
-
-			if (song !== undefined) {
-				setSelectedPlaylistSong(song)
-			}
+			jumpPlaylistSong(position)
 
 			return
 		}
 
 		if (inputTarget === InputTarget.Artist) {
-			const name = position === 'start' ? visibleArtists[0] : visibleArtists.at(-1)
-
-			if (name !== undefined) {
-				setSelectedArtist(name)
-			}
+			jumpArtist(position)
 		} else if (inputTarget === InputTarget.Album) {
-			const album = position === 'start' ? visibleAlbums[0] : visibleAlbums.at(-1)
-
-			if (album !== undefined) {
-				setSelectedAlbum(album)
-			}
+			jumpAlbum(position)
 		} else {
-			const song = position === 'start' ? visibleSongs[0] : visibleSongs.at(-1)
-
-			if (song !== undefined) {
-				setSelectedSong(song)
-			}
+			jumpSong(position)
 		}
-	}, [appView, inputTarget, visibleArtists, visibleAlbums, visibleSongs, visiblePlaylistSongs])
+	}, [appView, inputTarget, jumpPlaylistSong, jumpArtist, jumpAlbum, jumpSong])
 
 	const focusPrevColumn = useCallback((): void => {
 		if (inputTarget === InputTarget.Album) {
@@ -402,6 +427,16 @@ export default function App(props: Readonly<AppProps>) {
 						volume={volume}
 					/>
 				)}
+				{appView === AppView.Soulseek && (
+					<SoulseekView
+						musicDir={config.musicDir}
+						soulseekUsername={config.soulseekUsername}
+						soulseekPassword={config.soulseekPassword}
+						maxRows={listMaxRows}
+						setAppView={setAppView}
+						exit={exit}
+					/>
+				)}
 				{appView === AppView.Config && (
 					<ConfigView
 						config={config}
@@ -420,7 +455,7 @@ export default function App(props: Readonly<AppProps>) {
 					playStartedAt={playStartedAt}
 				/>
 			)}
-			{appView !== AppView.Config && (
+			{appView !== AppView.Config && appView !== AppView.Soulseek && (
 				<HelpBar
 					isSearching={isSearching}
 					searchQuery={activeQuery}

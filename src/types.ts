@@ -16,6 +16,7 @@ export enum AppView {
 	Library,
 	Playlist,
 	NowPlaying,
+	Soulseek,
 	Config,
 }
 

@@ -96,43 +96,49 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 	}, [inputTarget, clearQueryFor, setIsSearching, setQueryFor, moveBy])
 
 	/** Handles navigation, column focus, playback, and quit when not in search mode. */
-	const handleNormal = useCallback((input: string, key: Key): void => {
-		if (key.escape) {
+	/** Handles quit and app-view switching keys in normal mode. */
+	const handleQuitAndViewSwitch = useCallback((input: string, key: Key): boolean => {
+		if (key.escape || input === 'q') {
 			exit()
 
-			return
-		}
-
-		if (input === 'q') {
-			exit()
-
-			return
+			return true
 		}
 
 		if (input === '1') {
 			setAppView(AppView.Library)
 
-			return
+			return true
 		}
 
 		if (input === '2') {
 			setAppView(AppView.Playlist)
 
-			return
+			return true
 		}
 
 		if (input === '3') {
 			setAppView(AppView.NowPlaying)
 
-			return
+			return true
 		}
 
 		if (input === '4') {
-			setAppView(AppView.Config)
+			setAppView(AppView.Soulseek)
 
-			return
+			return true
 		}
 
+		if (input === '5') {
+			setAppView(AppView.Config)
+
+			return true
+		}
+
+		return false
+	}, [exit, setAppView])
+
+	/** Handles playback-related keys and search activation in normal mode. */
+	const handlePlaybackAndSearch = useCallback((input: string, key: Key): boolean => {
 		if (input === ' ') {
 			if (appView === AppView.Library) {
 				addFocusedToPlaylist()
@@ -142,85 +148,111 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 				togglePlayback()
 			}
 
-			return
+			return true
 		}
 
 		if (key.return || input === 'p') {
 			togglePlayback()
 
-			return
+			return true
 		}
 
 		if (input === 's') {
 			stopPlayback()
 
-			return
+			return true
 		}
 
 		if (input === '/' && appView !== AppView.NowPlaying) {
 			setIsSearching(true)
 
-			return
+			return true
 		}
 
-		if (appView === AppView.Library && (key.leftArrow || input === 'h')) {
+		return false
+	}, [
+		appView,
+		setIsSearching,
+		togglePlayback,
+		stopPlayback,
+		addFocusedToPlaylist,
+		removeSelectedFromPlaylist
+	])
+
+	/** Handles horizontal column navigation in the library view. */
+	const handleLibraryHorizontalNav = useCallback((input: string, key: Key): boolean => {
+		if (appView !== AppView.Library) {
+			return false
+		}
+
+		if (key.leftArrow || input === 'h') {
 			focusPrevColumn()
 
-			return
+			return true
 		}
 
-		if (appView === AppView.Library && (key.rightArrow || input === 'l')) {
+		if (key.rightArrow || input === 'l') {
 			focusNextColumn()
 
-			return
+			return true
 		}
 
+		return false
+	}, [appView, focusPrevColumn, focusNextColumn])
+
+	/** Handles vertical list movement and jump keys in normal mode. */
+	const handleListMovement = useCallback((input: string, key: Key): boolean => {
 		if (key.upArrow || input === 'k') {
 			moveBy(-1)
 
-			return
+			return true
 		}
 
 		if (key.downArrow || input === 'j') {
 			moveBy(1)
 
-			return
+			return true
 		}
 
 		if (key.pageUp) {
 			moveBy(-listMaxRows)
 
-			return
+			return true
 		}
 
 		if (key.pageDown) {
 			moveBy(listMaxRows)
 
-			return
+			return true
 		}
 
 		if (input === 'g') {
 			jumpTo('start')
 
-			return
+			return true
 		}
 
 		if (input === 'G') {
 			jumpTo('end')
 
-			return
+			return true
 		}
 
+		return false
+	}, [listMaxRows, moveBy, jumpTo])
+
+	/** Handles volume control and clear actions in normal mode. */
+	const handleVolumeAndClear = useCallback((input: string): boolean => {
 		if (input === '+' || input === '=') {
 			adjustVolume(VOLUME_KEY_STEP)
 
-			return
+			return true
 		}
 
 		if (input === '-') {
 			adjustVolume(-VOLUME_KEY_STEP)
 
-			return
+			return true
 		}
 
 		if (input === 'c') {
@@ -229,29 +261,41 @@ export function useAppInput(handlers: Readonly<AppInputHandlers>): void {
 			} else {
 				clearQueryFor(inputTarget)
 			}
+
+			return true
 		}
+
+		return false
+	}, [appView, inputTarget, adjustVolume, clearPlaylist, clearQueryFor])
+
+	const handleNormal = useCallback((input: string, key: Key): void => {
+		if (handleQuitAndViewSwitch(input, key)) {
+			return
+		}
+
+		if (handlePlaybackAndSearch(input, key)) {
+			return
+		}
+
+		if (handleLibraryHorizontalNav(input, key)) {
+			return
+		}
+
+		if (handleListMovement(input, key)) {
+			return
+		}
+
+		handleVolumeAndClear(input)
 	}, [
-		appView,
-		inputTarget,
-		listMaxRows,
-		exit,
-		setIsSearching,
-		setAppView,
-		clearQueryFor,
-		moveBy,
-		jumpTo,
-		focusPrevColumn,
-		focusNextColumn,
-		togglePlayback,
-		stopPlayback,
-		adjustVolume,
-		addFocusedToPlaylist,
-		removeSelectedFromPlaylist,
-		clearPlaylist
+		handleQuitAndViewSwitch,
+		handlePlaybackAndSearch,
+		handleLibraryHorizontalNav,
+		handleListMovement,
+		handleVolumeAndClear
 	])
 
 	useInput((input: string, key: Key): void => {
-		if (appView === AppView.Config) {
+		if (appView === AppView.Config || appView === AppView.Soulseek) {
 			return
 		}
 

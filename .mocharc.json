@@ -1,0 +1,7 @@
+{
+	"import": "tsx/esm",
+	"extensions": ["ts", "tsx"],
+	"spec": ["tests/**/*.test.ts"],
+	"recursive": true,
+	"reporter": "spec"
+}
