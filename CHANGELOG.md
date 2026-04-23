@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.8](https://github.com/f3rnox/muzical/compare/v0.0.7...v0.0.8) (2026-04-23)
+
+
+### Features
+
+* add visualizer and next/prev keys, build ([3695585](https://github.com/f3rnox/muzical/commit/3695585826b9930d938d64469650e242e505150f))
+
 ### [0.0.7](https://github.com/f3rnox/muzical/compare/v0.0.6...v0.0.7) (2026-04-23)
 
 
