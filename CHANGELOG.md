@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.11](https://github.com/f3rnox/muzical/compare/v0.0.10...v0.0.11) (2026-04-29)
+
+
+### Bug Fixes
+
+* update prettierignore ([b7883d9](https://github.com/f3rnox/muzical/commit/b7883d94476a1cf44ceeb514f96cc20353d6b1b7))
+
 ### [0.0.10](https://github.com/f3rnox/muzical/compare/v0.0.9...v0.0.10) (2026-04-29)
 
 
