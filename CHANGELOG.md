@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.9](https://github.com/f3rnox/muzical/compare/v0.0.8...v0.0.9) (2026-04-29)
+
+
+### Features
+
+* add github workflows ([288899c](https://github.com/f3rnox/muzical/commit/288899c67ae40d8aed71ebe07176cc4564b2e532))
+
 ### [0.0.8](https://github.com/f3rnox/muzical/compare/v0.0.7...v0.0.8) (2026-04-23)
 
 
