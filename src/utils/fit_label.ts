@@ -7,13 +7,13 @@
  */
 export default function fitLabel(maxChars: number, label: string): string {
 	if (maxChars <= 0) {
-		return ''
+		return "";
 	}
 	if (label.length <= maxChars) {
-		return label
+		return label;
 	}
 	if (maxChars === 1) {
-		return '…'
+		return "…";
 	}
-	return `${label.slice(0, maxChars - 1)}…`
+	return `${label.slice(0, maxChars - 1)}…`;
 }

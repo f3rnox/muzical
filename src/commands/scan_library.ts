@@ -1,17 +1,17 @@
-import loadConfig, { type LoadConfigOptions } from '../load_config'
-import loadLibrary from '../load_library'
-import loadMusicDir from '../load_music_dir'
+import loadConfig, { type LoadConfigOptions } from "../load_config";
+import loadLibrary from "../load_library";
+import loadMusicDir from "../load_music_dir";
 
 export interface ScanLibraryOptions extends LoadConfigOptions {
-	json?: boolean
+	json?: boolean;
 }
 
 interface ScanSummary {
-	musicDir: string
-	songExtensions: string[]
-	totalFiles: number
-	totalArtists: number
-	totalAlbums: number
+	musicDir: string;
+	songExtensions: string[];
+	totalFiles: number;
+	totalArtists: number;
+	totalAlbums: number;
 }
 
 /**
@@ -19,23 +19,25 @@ interface ScanSummary {
  *
  * @param options - Config overrides and optional `--json` output.
  */
-export async function scanLibrary(options: Readonly<ScanLibraryOptions> = {}): Promise<void> {
-	const config = await loadConfig(options)
-	const files = await loadMusicDir(config.musicDir, config.songExtensions)
-	const library = await loadLibrary(files)
+export async function scanLibrary(
+	options: Readonly<ScanLibraryOptions> = {},
+): Promise<void> {
+	const config = await loadConfig(options);
+	const files = await loadMusicDir(config.musicDir, config.songExtensions);
+	const library = await loadLibrary(files);
 
-	const artists = new Set<string>()
-	const albums = new Set<string>()
+	const artists = new Set<string>();
+	const albums = new Set<string>();
 
 	for (const song of library) {
-		const artist = song.metadata.common.artist ?? ''
-		const album = song.metadata.common.album ?? ''
+		const artist = song.metadata.common.artist ?? "";
+		const album = song.metadata.common.album ?? "";
 
 		if (artist.length > 0) {
-			artists.add(artist)
+			artists.add(artist);
 		}
 
-		albums.add(`${artist}\u0000${album}`)
+		albums.add(`${artist}\u0000${album}`);
 	}
 
 	const summary: ScanSummary = {
@@ -43,18 +45,18 @@ export async function scanLibrary(options: Readonly<ScanLibraryOptions> = {}): P
 		songExtensions: config.songExtensions,
 		totalFiles: library.length,
 		totalArtists: artists.size,
-		totalAlbums: albums.size
-	}
+		totalAlbums: albums.size,
+	};
 
 	if (options.json === true) {
-		process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`)
+		process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
 
-		return
+		return;
 	}
 
-	process.stdout.write(`music dir:   ${summary.musicDir}\n`)
-	process.stdout.write(`extensions:  ${summary.songExtensions.join(', ')}\n`)
-	process.stdout.write(`songs:       ${summary.totalFiles}\n`)
-	process.stdout.write(`artists:     ${summary.totalArtists}\n`)
-	process.stdout.write(`albums:      ${summary.totalAlbums}\n`)
+	process.stdout.write(`music dir:   ${summary.musicDir}\n`);
+	process.stdout.write(`extensions:  ${summary.songExtensions.join(", ")}\n`);
+	process.stdout.write(`songs:       ${summary.totalFiles}\n`);
+	process.stdout.write(`artists:     ${summary.totalArtists}\n`);
+	process.stdout.write(`albums:      ${summary.totalAlbums}\n`);
 }

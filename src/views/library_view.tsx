@@ -1,22 +1,26 @@
-import React from 'react'
+import React from "react";
 
-import ArtistList from '../components/artist_list'
-import AlbumList from '../components/album_list'
-import SongList from '../components/song_list'
-import { type LibraryAlbum, type LibrarySong, type InputTarget } from '../types'
+import ArtistList from "../components/artist_list";
+import AlbumList from "../components/album_list";
+import SongList from "../components/song_list";
+import {
+	type LibraryAlbum,
+	type LibrarySong,
+	type InputTarget,
+} from "../types";
 
 export interface LibraryViewProps {
-	inputTarget: InputTarget
-	maxRows: number
-	visibleArtists: string[]
-	selectedArtist: string
-	totalArtistCount: number
-	visibleAlbums: LibraryAlbum[]
-	selectedAlbum: LibraryAlbum | null
-	totalAlbumCount: number
-	visibleSongs: LibrarySong[]
-	selectedSong: LibrarySong | null
-	totalSongCount: number
+	inputTarget: InputTarget;
+	maxRows: number;
+	visibleArtists: string[];
+	selectedArtist: string;
+	totalArtistCount: number;
+	visibleAlbums: LibraryAlbum[];
+	selectedAlbum: LibraryAlbum | null;
+	totalAlbumCount: number;
+	visibleSongs: LibrarySong[];
+	selectedSong: LibrarySong | null;
+	totalSongCount: number;
 }
 
 /**
@@ -36,8 +40,8 @@ export default function LibraryView(props: Readonly<LibraryViewProps>) {
 		totalAlbumCount,
 		visibleSongs,
 		selectedSong,
-		totalSongCount
-	} = props
+		totalSongCount,
+	} = props;
 
 	return (
 		<>
@@ -63,5 +67,5 @@ export default function LibraryView(props: Readonly<LibraryViewProps>) {
 				totalCount={totalSongCount}
 			/>
 		</>
-	)
+	);
 }

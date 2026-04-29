@@ -1,13 +1,13 @@
-import React from 'react'
+import React from "react";
 
-import PlaylistList from '../components/playlist_list'
-import { type LibrarySong, InputTarget } from '../types'
+import PlaylistList from "../components/playlist_list";
+import { type LibrarySong, InputTarget } from "../types";
 
 export interface PlaylistViewProps {
-	maxRows: number
-	visibleSongs: LibrarySong[]
-	selectedSong: LibrarySong | null
-	totalCount: number
+	maxRows: number;
+	visibleSongs: LibrarySong[];
+	selectedSong: LibrarySong | null;
+	totalCount: number;
 }
 
 /**
@@ -16,7 +16,7 @@ export interface PlaylistViewProps {
  * @param props - Filtered playlist entries, current selection, scroll budget, and totals.
  */
 export default function PlaylistView(props: Readonly<PlaylistViewProps>) {
-	const { maxRows, visibleSongs, selectedSong, totalCount } = props
+	const { maxRows, visibleSongs, selectedSong, totalCount } = props;
 
 	return (
 		<PlaylistList
@@ -27,5 +27,5 @@ export default function PlaylistView(props: Readonly<PlaylistViewProps>) {
 			totalCount={totalCount}
 			isFocused
 		/>
-	)
+	);
 }

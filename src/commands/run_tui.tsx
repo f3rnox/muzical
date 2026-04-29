@@ -1,16 +1,19 @@
-import React from 'react'
-import { render } from 'ink'
+import React from "react";
+import { render } from "ink";
 
-import App from '../app'
-import loadConfig, { type LoadConfigOptions, resolveConfigPath } from '../load_config'
-import loadLibrary from '../load_library'
-import loadMusicDir from '../load_music_dir'
-import { resolvePlayer } from '../utils/resolve_player'
-import { type PlayerName } from '../utils/player_candidates'
+import App from "../app";
+import loadConfig, {
+	type LoadConfigOptions,
+	resolveConfigPath,
+} from "../load_config";
+import loadLibrary from "../load_library";
+import loadMusicDir from "../load_music_dir";
+import { resolvePlayer } from "../utils/resolve_player";
+import { type PlayerName } from "../utils/player_candidates";
 
 export interface RunTuiOptions extends LoadConfigOptions {
-	player?: PlayerName | null
-	clearScreen?: boolean
+	player?: PlayerName | null;
+	clearScreen?: boolean;
 }
 
 /**
@@ -18,20 +21,22 @@ export interface RunTuiOptions extends LoadConfigOptions {
  *
  * @param options - Config overrides, optional forced player, and clear-screen behavior.
  */
-export async function runTui(options: Readonly<RunTuiOptions> = {}): Promise<void> {
-	const clearScreen = options.clearScreen ?? true
+export async function runTui(
+	options: Readonly<RunTuiOptions> = {},
+): Promise<void> {
+	const clearScreen = options.clearScreen ?? true;
 
 	if (clearScreen) {
-		console.clear()
+		console.clear();
 	}
 
 	try {
-		const config = await loadConfig(options)
-		const configPath = await resolveConfigPath(options.configPath)
-		const { musicDir, songExtensions } = config
-		const musicFiles = await loadMusicDir(musicDir, songExtensions)
-		const library = await loadLibrary(musicFiles)
-		const player = resolvePlayer(options.player ?? null)
+		const config = await loadConfig(options);
+		const configPath = await resolveConfigPath(options.configPath);
+		const { musicDir, songExtensions } = config;
+		const musicFiles = await loadMusicDir(musicDir, songExtensions);
+		const library = await loadLibrary(musicFiles);
+		const player = resolvePlayer(options.player ?? null);
 
 		const { waitUntilExit } = render(
 			<App
@@ -39,13 +44,13 @@ export async function runTui(options: Readonly<RunTuiOptions> = {}): Promise<voi
 				configPath={configPath}
 				library={library}
 				player={player}
-			/>
-		)
+			/>,
+		);
 
-		await waitUntilExit()
+		await waitUntilExit();
 	} finally {
 		if (clearScreen) {
-			console.clear()
+			console.clear();
 		}
 	}
 }

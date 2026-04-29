@@ -1,4 +1,4 @@
-const ELLIPSIS = '…'
+const ELLIPSIS = "…";
 
 /**
  * Shortens text to fit a column, appending an ellipsis when the string is longer than `maxLength`.
@@ -7,15 +7,15 @@ const ELLIPSIS = '…'
  * @param maxLength - Maximum code units to return (may be only the ellipsis when very small).
  * @returns Truncated string, possibly ending with `…`.
  */
-export function truncate (text: string, maxLength: number): string {
+export function truncate(text: string, maxLength: number): string {
 	if (maxLength <= 0) {
-		return ''
+		return "";
 	}
 	if (text.length <= maxLength) {
-		return text
+		return text;
 	}
 	if (maxLength <= ELLIPSIS.length) {
-		return ELLIPSIS.slice(0, maxLength)
+		return ELLIPSIS.slice(0, maxLength);
 	}
-	return text.slice(0, maxLength - ELLIPSIS.length) + ELLIPSIS
+	return text.slice(0, maxLength - ELLIPSIS.length) + ELLIPSIS;
 }

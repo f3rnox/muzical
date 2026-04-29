@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
-const TICK_MS = 500
+const TICK_MS = 500;
 
 /** No-op cleanup for `useEffect` when playback is idle (no interval to clear). */
 function noop(): void {
-	return
+	return;
 }
 
 /**
@@ -14,27 +14,27 @@ function noop(): void {
  * @returns Elapsed seconds since `startedAt`, or `0` when not playing.
  */
 export function useElapsedSeconds(startedAt: number | null): number {
-	const [now, setNow] = useState<number>((): number => Date.now())
+	const [now, setNow] = useState<number>((): number => Date.now());
 
 	useEffect((): (() => void) => {
 		if (startedAt === null) {
-			return noop
+			return noop;
 		}
 
-		setNow(Date.now())
+		setNow(Date.now());
 
 		const id = setInterval((): void => {
-			setNow(Date.now())
-		}, TICK_MS)
+			setNow(Date.now());
+		}, TICK_MS);
 
 		return (): void => {
-			clearInterval(id)
-		}
-	}, [startedAt])
+			clearInterval(id);
+		};
+	}, [startedAt]);
 
 	if (startedAt === null) {
-		return 0
+		return 0;
 	}
 
-	return Math.max(0, (now - startedAt) / 1000)
+	return Math.max(0, (now - startedAt) / 1000);
 }

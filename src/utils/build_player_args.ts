@@ -1,9 +1,9 @@
-import { type PlayerCandidate } from './player_candidates'
+import { type PlayerCandidate } from "./player_candidates";
 
 export type BuildPlayerArgsOptions = Readonly<{
-	volume: number
-	mpvIpcPath?: string
-}>
+	volume: number;
+	mpvIpcPath?: string;
+}>;
 
 /**
  * Builds the argv array passed to `spawn` for a given player and audio file path.
@@ -16,12 +16,12 @@ export type BuildPlayerArgsOptions = Readonly<{
 export function buildPlayerArgs(
 	player: Readonly<PlayerCandidate>,
 	filePath: string,
-	options?: Readonly<BuildPlayerArgsOptions>
+	options?: Readonly<BuildPlayerArgsOptions>,
 ): string[] {
-	const volume = options?.volume ?? 100
-	const clamped = Math.max(0, Math.min(100, volume))
+	const volume = options?.volume ?? 100;
+	const clamped = Math.max(0, Math.min(100, volume));
 
-	if (player.name === 'mpv') {
+	if (player.name === "mpv") {
 		return [
 			...player.args,
 			`--volume=${clamped}`,
@@ -29,24 +29,30 @@ export function buildPlayerArgs(
 				? [`--input-ipc-server=${options.mpvIpcPath}`]
 				: []),
 			filePath,
-			...(player.suffixArgs ?? [])
-		]
+			...(player.suffixArgs ?? []),
+		];
 	}
 
-	if (player.name === 'mpg123') {
-		const scale: number = Math.max(0, Math.round((clamped / 100) * 256))
-		return [...player.args, '-f', String(scale), filePath, ...(player.suffixArgs ?? [])]
-	}
-
-	if (player.name === 'ffplay') {
+	if (player.name === "mpg123") {
+		const scale: number = Math.max(0, Math.round((clamped / 100) * 256));
 		return [
 			...player.args,
-			'-af',
-			`volume=${(clamped / 100).toFixed(2)}`,
+			"-f",
+			String(scale),
 			filePath,
-			...(player.suffixArgs ?? [])
-		]
+			...(player.suffixArgs ?? []),
+		];
 	}
 
-	return [...player.args, filePath, ...(player.suffixArgs ?? [])]
+	if (player.name === "ffplay") {
+		return [
+			...player.args,
+			"-af",
+			`volume=${(clamped / 100).toFixed(2)}`,
+			filePath,
+			...(player.suffixArgs ?? []),
+		];
+	}
+
+	return [...player.args, filePath, ...(player.suffixArgs ?? [])];
 }

@@ -1,4 +1,4 @@
-export type SpectrumRowColor = 'green' | 'yellow' | 'red'
+export type SpectrumRowColor = "green" | "yellow" | "red";
 
 /**
  * Picks a VU-meter style color for a spectrum row based on its vertical position.
@@ -7,16 +7,19 @@ export type SpectrumRowColor = 'green' | 'yellow' | 'red'
  * @param totalRows - Total number of rows in the chart.
  * @returns `'green'` near the floor, `'yellow'` in the middle band, `'red'` near the top.
  */
-export function spectrumRowColor(rowFromBottom: number, totalRows: number): SpectrumRowColor {
-	const t: number = totalRows <= 1 ? 0 : rowFromBottom / (totalRows - 1)
+export function spectrumRowColor(
+	rowFromBottom: number,
+	totalRows: number,
+): SpectrumRowColor {
+	const t: number = totalRows <= 1 ? 0 : rowFromBottom / (totalRows - 1);
 
 	if (t >= 0.8) {
-		return 'red'
+		return "red";
 	}
 
 	if (t >= 0.5) {
-		return 'yellow'
+		return "yellow";
 	}
 
-	return 'green'
+	return "green";
 }

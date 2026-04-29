@@ -1,10 +1,14 @@
-import { detectPlayer } from './detect_player'
-import { isBinaryAvailable } from './is_binary_available'
-import { PLAYER_CANDIDATES, type PlayerCandidate, type PlayerName } from './player_candidates'
+import { detectPlayer } from "./detect_player";
+import { isBinaryAvailable } from "./is_binary_available";
+import {
+	PLAYER_CANDIDATES,
+	type PlayerCandidate,
+	type PlayerName,
+} from "./player_candidates";
 
 export const PLAYER_NAMES: readonly PlayerName[] = PLAYER_CANDIDATES.map(
-	(candidate: PlayerCandidate): PlayerName => candidate.name
-)
+	(candidate: PlayerCandidate): PlayerName => candidate.name,
+);
 
 /**
  * Narrows a string to a supported backend id when it matches a known player name.
@@ -13,7 +17,7 @@ export const PLAYER_NAMES: readonly PlayerName[] = PLAYER_CANDIDATES.map(
  * @returns Type predicate: `true` when `value` is a {@link PlayerName}.
  */
 export function isPlayerName(value: string): value is PlayerName {
-	return (PLAYER_NAMES as readonly string[]).includes(value)
+	return (PLAYER_NAMES as readonly string[]).includes(value);
 }
 
 /**
@@ -22,22 +26,24 @@ export function isPlayerName(value: string): value is PlayerName {
  * @param forced - Optional player id to require; `null`/`undefined` means auto-detect.
  * @returns A candidate with an available binary, or `null` if none match.
  */
-export function resolvePlayer(forced?: PlayerName | null): PlayerCandidate | null {
+export function resolvePlayer(
+	forced?: PlayerName | null,
+): PlayerCandidate | null {
 	if (forced === undefined || forced === null) {
-		return detectPlayer()
+		return detectPlayer();
 	}
 
 	const candidate = PLAYER_CANDIDATES.find(
-		(entry: PlayerCandidate): boolean => entry.name === forced
-	)
+		(entry: PlayerCandidate): boolean => entry.name === forced,
+	);
 
 	if (candidate === undefined) {
-		return null
+		return null;
 	}
 
 	if (!isBinaryAvailable(candidate.bin)) {
-		return null
+		return null;
 	}
 
-	return candidate
+	return candidate;
 }

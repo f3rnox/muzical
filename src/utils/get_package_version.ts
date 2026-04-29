@@ -1,9 +1,9 @@
-import { readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
-import path from 'node:path'
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 
 interface PackageJsonShape {
-	version: string
+	version: string;
 }
 
 /**
@@ -12,24 +12,24 @@ interface PackageJsonShape {
  * @returns The semver `version` field, or `'0.0.0'` when the file cannot be read.
  */
 export function getPackageVersion(): string {
-	const here = path.dirname(fileURLToPath(import.meta.url))
+	const here = path.dirname(fileURLToPath(import.meta.url));
 	const candidates: string[] = [
-		path.resolve(here, '..', '..', 'package.json'),
-		path.resolve(here, '..', 'package.json')
-	]
+		path.resolve(here, "..", "..", "package.json"),
+		path.resolve(here, "..", "package.json"),
+	];
 
 	for (const candidate of candidates) {
 		try {
-			const raw = readFileSync(candidate, 'utf-8')
-			const parsed: PackageJsonShape = JSON.parse(raw)
+			const raw = readFileSync(candidate, "utf-8");
+			const parsed: PackageJsonShape = JSON.parse(raw);
 
-			if (typeof parsed.version === 'string') {
-				return parsed.version
+			if (typeof parsed.version === "string") {
+				return parsed.version;
 			}
 		} catch {
-			continue
+			continue;
 		}
 	}
 
-	return '0.0.0'
+	return "0.0.0";
 }

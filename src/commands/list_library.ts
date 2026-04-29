@@ -1,16 +1,16 @@
-import loadConfig, { type LoadConfigOptions } from '../load_config'
-import loadLibrary from '../load_library'
-import loadMusicDir from '../load_music_dir'
-import { sortAlphabetical } from '../sort/sort_alphabetical'
-import { sortSongs } from '../sort/sort_songs'
-import { type LibrarySong } from '../types'
+import loadConfig, { type LoadConfigOptions } from "../load_config";
+import loadLibrary from "../load_library";
+import loadMusicDir from "../load_music_dir";
+import { sortAlphabetical } from "../sort/sort_alphabetical";
+import { sortSongs } from "../sort/sort_songs";
+import { type LibrarySong } from "../types";
 
-export type ListKind = 'artists' | 'albums' | 'songs'
+export type ListKind = "artists" | "albums" | "songs";
 
 export interface ListLibraryOptions extends LoadConfigOptions {
-	artist?: string
-	album?: string
-	json?: boolean
+	artist?: string;
+	album?: string;
+	json?: boolean;
 }
 
 /**
@@ -20,18 +20,18 @@ export interface ListLibraryOptions extends LoadConfigOptions {
  * @returns Sorted artist display names.
  */
 const listArtists = (library: readonly LibrarySong[]): string[] => {
-	const names = new Set<string>()
+	const names = new Set<string>();
 
 	for (const song of library) {
-		const artist = song.metadata.common.artist ?? ''
+		const artist = song.metadata.common.artist ?? "";
 
 		if (artist.length > 0) {
-			names.add(artist)
+			names.add(artist);
 		}
 	}
 
-	return Array.from(names).sort(sortAlphabetical)
-}
+	return Array.from(names).sort(sortAlphabetical);
+};
 
 /**
  * Collects unique non-empty album titles, optionally restricted to one artist.
@@ -42,25 +42,25 @@ const listArtists = (library: readonly LibrarySong[]): string[] => {
  */
 const listAlbums = (
 	library: readonly LibrarySong[],
-	artistFilter?: string
+	artistFilter?: string,
 ): string[] => {
-	const albums = new Set<string>()
+	const albums = new Set<string>();
 
 	for (const song of library) {
-		const artist = song.metadata.common.artist ?? ''
-		const album = song.metadata.common.album ?? ''
+		const artist = song.metadata.common.artist ?? "";
+		const album = song.metadata.common.album ?? "";
 
 		if (artistFilter !== undefined && artist !== artistFilter) {
-			continue
+			continue;
 		}
 
 		if (album.length > 0) {
-			albums.add(album)
+			albums.add(album);
 		}
 	}
 
-	return Array.from(albums).sort(sortAlphabetical)
-}
+	return Array.from(albums).sort(sortAlphabetical);
+};
 
 /**
  * Returns library songs filtered by optional artist and album, sorted for album playback order.
@@ -73,25 +73,25 @@ const listAlbums = (
 const listSongs = (
 	library: readonly LibrarySong[],
 	artistFilter?: string,
-	albumFilter?: string
+	albumFilter?: string,
 ): LibrarySong[] => {
 	const filtered = library.filter((song: LibrarySong): boolean => {
-		const artist = song.metadata.common.artist ?? ''
-		const album = song.metadata.common.album ?? ''
+		const artist = song.metadata.common.artist ?? "";
+		const album = song.metadata.common.album ?? "";
 
 		if (artistFilter !== undefined && artist !== artistFilter) {
-			return false
+			return false;
 		}
 
 		if (albumFilter !== undefined && album !== albumFilter) {
-			return false
+			return false;
 		}
 
-		return true
-	})
+		return true;
+	});
 
-	return [...filtered].sort(sortSongs)
-}
+	return [...filtered].sort(sortSongs);
+};
 
 /**
  * Formats one song as a human-readable line for plain-text `list songs` output.
@@ -100,12 +100,12 @@ const listSongs = (
  * @returns A single line with artist, album, and title (or path fallback).
  */
 const formatSong = (song: Readonly<LibrarySong>): string => {
-	const title = song.metadata.common.title ?? song.filePath
-	const artist = song.metadata.common.artist ?? 'Unknown Artist'
-	const album = song.metadata.common.album ?? 'Unknown Album'
+	const title = song.metadata.common.title ?? song.filePath;
+	const artist = song.metadata.common.artist ?? "Unknown Artist";
+	const album = song.metadata.common.album ?? "Unknown Album";
 
-	return `${artist} — ${album} — ${title}`
-}
+	return `${artist} — ${album} — ${title}`;
+};
 
 /**
  * Loads the library and prints artists, albums, or songs to stdout (optionally as JSON).
@@ -115,45 +115,45 @@ const formatSong = (song: Readonly<LibrarySong>): string => {
  */
 export async function listLibrary(
 	kind: ListKind,
-	options: Readonly<ListLibraryOptions> = {}
+	options: Readonly<ListLibraryOptions> = {},
 ): Promise<void> {
-	const config = await loadConfig(options)
-	const files = await loadMusicDir(config.musicDir, config.songExtensions)
-	const library = await loadLibrary(files)
+	const config = await loadConfig(options);
+	const files = await loadMusicDir(config.musicDir, config.songExtensions);
+	const library = await loadLibrary(files);
 
-	if (kind === 'artists') {
-		const artists = listArtists(library)
+	if (kind === "artists") {
+		const artists = listArtists(library);
 
 		if (options.json === true) {
-			process.stdout.write(`${JSON.stringify(artists, null, 2)}\n`)
+			process.stdout.write(`${JSON.stringify(artists, null, 2)}\n`);
 
-			return
+			return;
 		}
 
 		for (const name of artists) {
-			process.stdout.write(`${name}\n`)
+			process.stdout.write(`${name}\n`);
 		}
 
-		return
+		return;
 	}
 
-	if (kind === 'albums') {
-		const albums = listAlbums(library, options.artist)
+	if (kind === "albums") {
+		const albums = listAlbums(library, options.artist);
 
 		if (options.json === true) {
-			process.stdout.write(`${JSON.stringify(albums, null, 2)}\n`)
+			process.stdout.write(`${JSON.stringify(albums, null, 2)}\n`);
 
-			return
+			return;
 		}
 
 		for (const name of albums) {
-			process.stdout.write(`${name}\n`)
+			process.stdout.write(`${name}\n`);
 		}
 
-		return
+		return;
 	}
 
-	const songs = listSongs(library, options.artist, options.album)
+	const songs = listSongs(library, options.artist, options.album);
 
 	if (options.json === true) {
 		const payload = songs.map((song: LibrarySong) => ({
@@ -162,14 +162,14 @@ export async function listLibrary(
 			artist: song.metadata.common.artist ?? null,
 			album: song.metadata.common.album ?? null,
 			track: song.metadata.common.track?.no ?? null,
-			durationSeconds: song.metadata.format.duration ?? null
-		}))
-		process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`)
+			durationSeconds: song.metadata.format.duration ?? null,
+		}));
+		process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
 
-		return
+		return;
 	}
 
 	for (const song of songs) {
-		process.stdout.write(`${formatSong(song)}\n`)
+		process.stdout.write(`${formatSong(song)}\n`);
 	}
 }

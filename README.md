@@ -132,10 +132,10 @@ showing the expected path.
 
 ```json
 {
-  "musicDir": "/absolute/path/to/your/music",
-  "songExtensions": [".mp3", ".flac"],
-  "soulseekUsername": "",
-  "soulseekPassword": ""
+	"musicDir": "/absolute/path/to/your/music",
+	"songExtensions": [".mp3", ".flac"],
+	"soulseekUsername": "",
+	"soulseekPassword": ""
 }
 ```
 
@@ -212,30 +212,30 @@ its own progress bar is already present.
 
 ### Global (Library, Playlist, Now Playing)
 
-| Mode   | Key(s)                 | Action                             |
-| ------ | ---------------------- | ---------------------------------- |
-| Normal | `1`–`5`                | Switch view                        |
-| Normal | `↑` `↓` / `j` `k`      | Move selection in focused list     |
-| Normal | `PgUp` / `PgDn`        | Page by visible list height        |
-| Normal | `g` / `G`              | Jump to first / last item          |
-| Normal | `Enter` / `p`          | Toggle playback for selected song  |
-| Normal | `s`                    | Stop playback                      |
-| Normal | `+` / `=` / `-`        | Raise / lower volume (5% steps)    |
-| Normal | `/`                    | Start search in focused column     |
-| Normal | `q` / `Esc`            | Quit                               |
-| Search | type                   | Append to query                    |
-| Search | `Backspace` / `Delete` | Delete last character              |
-| Search | `↑` `↓`                | Move selection while searching     |
-| Search | `Enter`                | Leave search mode (keep query)     |
-| Search | `Esc`                  | Cancel search and clear the query  |
+| Mode   | Key(s)                 | Action                            |
+| ------ | ---------------------- | --------------------------------- |
+| Normal | `1`–`5`                | Switch view                       |
+| Normal | `↑` `↓` / `j` `k`      | Move selection in focused list    |
+| Normal | `PgUp` / `PgDn`        | Page by visible list height       |
+| Normal | `g` / `G`              | Jump to first / last item         |
+| Normal | `Enter` / `p`          | Toggle playback for selected song |
+| Normal | `s`                    | Stop playback                     |
+| Normal | `+` / `=` / `-`        | Raise / lower volume (5% steps)   |
+| Normal | `/`                    | Start search in focused column    |
+| Normal | `q` / `Esc`            | Quit                              |
+| Search | type                   | Append to query                   |
+| Search | `Backspace` / `Delete` | Delete last character             |
+| Search | `↑` `↓`                | Move selection while searching    |
+| Search | `Enter`                | Leave search mode (keep query)    |
+| Search | `Esc`                  | Cancel search and clear the query |
 
 ### Library view
 
-| Key               | Action                                      |
-| ----------------- | ------------------------------------------- |
-| `←` `→` / `h` `l` | Focus previous / next column                |
-| `space`           | Append focused artist/album/song to queue   |
-| `c`               | Clear the focused column's search query     |
+| Key               | Action                                    |
+| ----------------- | ----------------------------------------- |
+| `←` `→` / `h` `l` | Focus previous / next column              |
+| `space`           | Append focused artist/album/song to queue |
+| `c`               | Clear the focused column's search query   |
 
 ### Playlist view
 
@@ -254,21 +254,21 @@ its own progress bar is already present.
 
 ### Soulseek view (view-local bindings)
 
-| Mode  | Key(s)                  | Action                          |
-| ----- | ----------------------- | ------------------------------- |
-| Input | type                    | Append to query                 |
-| Input | `Backspace`             | Delete last character           |
-| Input | `Enter`                 | Run search                      |
-| Input | `Esc`                   | Return to results list          |
-| List  | `/` / `i`               | Open search input               |
-| List  | `c`                     | Connect (or reconnect)          |
-| List  | `↑` `↓` / `j` `k`       | Move selection                  |
-| List  | `PgUp` / `PgDn`         | Page through results            |
-| List  | `g` / `G`               | Jump to first / last result     |
-| List  | `Enter` / `d` / `space` | Download the selected result    |
-| List  | `x`                     | Clear results                   |
-| List  | `1`–`5`                 | Switch view                     |
-| List  | `q`                     | Quit                            |
+| Mode  | Key(s)                  | Action                       |
+| ----- | ----------------------- | ---------------------------- |
+| Input | type                    | Append to query              |
+| Input | `Backspace`             | Delete last character        |
+| Input | `Enter`                 | Run search                   |
+| Input | `Esc`                   | Return to results list       |
+| List  | `/` / `i`               | Open search input            |
+| List  | `c`                     | Connect (or reconnect)       |
+| List  | `↑` `↓` / `j` `k`       | Move selection               |
+| List  | `PgUp` / `PgDn`         | Page through results         |
+| List  | `g` / `G`               | Jump to first / last result  |
+| List  | `Enter` / `d` / `space` | Download the selected result |
+| List  | `x`                     | Clear results                |
+| List  | `1`–`5`                 | Switch view                  |
+| List  | `q`                     | Quit                         |
 
 ### Config view (view-local bindings)
 
@@ -293,14 +293,14 @@ subcommands for non-interactive use. Run `muzical --help` (or `muzical
 
 ### Global options
 
-| Flag                     | Purpose                                           |
-| ------------------------ | ------------------------------------------------- |
-| `-d, --music-dir <path>` | Override `musicDir` from config                   |
-| `-e, --extension <ext>`  | Add / override a song extension (repeatable)      |
-| `-p, --player <name>`    | Force a backend (mpg123 / mpv / ffplay / vlc)     |
-| `-c, --config <path>`    | Use a custom `config.json` location               |
-| `--no-clear-screen`      | Do not clear terminal on start/exit               |
-| `-v, --version`          | Print version and exit                            |
+| Flag                     | Purpose                                       |
+| ------------------------ | --------------------------------------------- |
+| `-d, --music-dir <path>` | Override `musicDir` from config               |
+| `-e, --extension <ext>`  | Add / override a song extension (repeatable)  |
+| `-p, --player <name>`    | Force a backend (mpg123 / mpv / ffplay / vlc) |
+| `-c, --config <path>`    | Use a custom `config.json` location           |
+| `--no-clear-screen`      | Do not clear terminal on start/exit           |
+| `-v, --version`          | Print version and exit                        |
 
 ### Subcommands
 

@@ -1,5 +1,5 @@
-import { isBinaryAvailable } from './is_binary_available'
-import { PLAYER_CANDIDATES, type PlayerCandidate } from './player_candidates'
+import { isBinaryAvailable } from "./is_binary_available";
+import { PLAYER_CANDIDATES, type PlayerCandidate } from "./player_candidates";
 
 /**
  * Returns the first configured player whose host binary is found on `PATH`.
@@ -9,9 +9,9 @@ import { PLAYER_CANDIDATES, type PlayerCandidate } from './player_candidates'
 export function detectPlayer(): PlayerCandidate | null {
 	for (const candidate of PLAYER_CANDIDATES) {
 		if (isBinaryAvailable(candidate.bin)) {
-			return candidate
+			return candidate;
 		}
 	}
 
-	return null
+	return null;
 }

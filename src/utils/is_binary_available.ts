@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process'
+import { spawnSync } from "node:child_process";
 
 /**
  * Checks whether an executable name resolves on the host (`which` / `where` exit 0).
@@ -7,8 +7,8 @@ import { spawnSync } from 'node:child_process'
  * @returns `true` when the locator command succeeds.
  */
 export function isBinaryAvailable(bin: string): boolean {
-	const locator = process.platform === 'win32' ? 'where' : 'which'
-	const result = spawnSync(locator, [bin], { stdio: 'ignore' })
+	const locator = process.platform === "win32" ? "where" : "which";
+	const result = spawnSync(locator, [bin], { stdio: "ignore" });
 
-	return result.status === 0
+	return result.status === 0;
 }

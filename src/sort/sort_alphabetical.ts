@@ -6,5 +6,5 @@
  * @returns Negative, zero, or positive per `String.prototype.localeCompare`.
  */
 export function sortAlphabetical(a: string, b: string): number {
-	return a.localeCompare(b, undefined, { sensitivity: 'base' })
+	return a.localeCompare(b, undefined, { sensitivity: "base" });
 }

@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
-import { useStdout } from 'ink'
+import { useEffect, useState } from "react";
+import { useStdout } from "ink";
 
 export interface TerminalSize {
-	columns: number
-	rows: number
+	columns: number;
+	rows: number;
 }
 
 /**
@@ -12,27 +12,27 @@ export interface TerminalSize {
  * @returns Latest `{ columns, rows }` from Ink's stdout handle with sensible fallbacks.
  */
 export function useTerminalSize(): TerminalSize {
-	const { stdout } = useStdout()
+	const { stdout } = useStdout();
 	const [size, setSize] = useState<TerminalSize>({
 		columns: stdout.columns ?? 80,
-		rows: stdout.rows ?? 24
-	})
+		rows: stdout.rows ?? 24,
+	});
 
 	useEffect((): (() => void) => {
 		/** Pushes the current stdout dimensions into React state. */
 		const onResize = (): void => {
 			setSize({
 				columns: stdout.columns ?? 80,
-				rows: stdout.rows ?? 24
-			})
-		}
+				rows: stdout.rows ?? 24,
+			});
+		};
 
-		stdout.on('resize', onResize)
+		stdout.on("resize", onResize);
 
 		return (): void => {
-			stdout.off('resize', onResize)
-		}
-	}, [stdout])
+			stdout.off("resize", onResize);
+		};
+	}, [stdout]);
 
-	return size
+	return size;
 }

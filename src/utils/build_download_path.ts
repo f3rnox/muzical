@@ -1,4 +1,4 @@
-import path from 'node:path'
+import path from "node:path";
 
 /**
  * Builds a unique, collision-resistant destination path inside the music directory
@@ -13,14 +13,14 @@ import path from 'node:path'
 export function buildDownloadPath(
 	musicDir: string,
 	username: string,
-	remoteFilename: string
+	remoteFilename: string,
 ): string {
-	const normalized = remoteFilename.replaceAll('\\', '/')
-	const parsed = path.parse(normalized)
-	const safeUsername = username.replaceAll(/[^\w.-]/g, '_')
-	const safeBase = parsed.name.replaceAll(/[^\w.\- ]/g, '_').trim() || 'file'
-	const extension = parsed.ext.length > 0 ? parsed.ext : ''
-	const filename = `slsk-${safeUsername}-${safeBase}-${Date.now()}${extension}`
+	const normalized = remoteFilename.replaceAll("\\", "/");
+	const parsed = path.parse(normalized);
+	const safeUsername = username.replaceAll(/[^\w.-]/g, "_");
+	const safeBase = parsed.name.replaceAll(/[^\w.\- ]/g, "_").trim() || "file";
+	const extension = parsed.ext.length > 0 ? parsed.ext : "";
+	const filename = `slsk-${safeUsername}-${safeBase}-${Date.now()}${extension}`;
 
-	return path.join(musicDir, filename)
+	return path.join(musicDir, filename);
 }

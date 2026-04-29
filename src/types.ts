@@ -1,8 +1,8 @@
-import { type IAudioMetadata } from 'music-metadata'
+import { type IAudioMetadata } from "music-metadata";
 
 export interface LibrarySong {
-	filePath: string
-	metadata: IAudioMetadata
+	filePath: string;
+	metadata: IAudioMetadata;
 }
 
 export enum InputTarget {
@@ -22,7 +22,7 @@ export enum AppView {
 }
 
 export interface LibraryAlbum {
-	name: string
-	artists: string[]
-	songs: LibrarySong[]
+	name: string;
+	artists: string[];
+	songs: LibrarySong[];
 }

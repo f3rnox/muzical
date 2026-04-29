@@ -1,1 +1,1 @@
-export const LIST_LABEL_MAX = 40
+export const LIST_LABEL_MAX = 40;

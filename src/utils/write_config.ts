@@ -1,7 +1,7 @@
-import { promises as fs } from 'node:fs'
-import path from 'node:path'
+import { promises as fs } from "node:fs";
+import path from "node:path";
 
-import { type Config } from '../load_config'
+import { type Config } from "../load_config";
 
 /**
  * Persists a {@link Config} snapshot to `configPath` as indented JSON, creating the parent directory if needed.
@@ -11,17 +11,21 @@ import { type Config } from '../load_config'
  */
 export async function writeConfig(
 	configPath: string,
-	config: Readonly<Config>
+	config: Readonly<Config>,
 ): Promise<void> {
-	const dir = path.dirname(configPath)
-	await fs.mkdir(dir, { recursive: true })
+	const dir = path.dirname(configPath);
+	await fs.mkdir(dir, { recursive: true });
 
 	const serializable = {
 		musicDir: config.musicDir,
 		songExtensions: config.songExtensions,
 		soulseekUsername: config.soulseekUsername,
-		soulseekPassword: config.soulseekPassword
-	}
+		soulseekPassword: config.soulseekPassword,
+	};
 
-	await fs.writeFile(configPath, `${JSON.stringify(serializable, null, 2)}\n`, 'utf-8')
+	await fs.writeFile(
+		configPath,
+		`${JSON.stringify(serializable, null, 2)}\n`,
+		"utf-8",
+	);
 }

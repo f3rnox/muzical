@@ -1,6 +1,6 @@
-import PI from 'p-iteration'
-import { parseFile } from 'music-metadata'
-import { type LibrarySong } from './types'
+import PI from "p-iteration";
+import { parseFile } from "music-metadata";
+import { type LibrarySong } from "./types";
 
 /**
  * Reads audio metadata for each file path and returns parallel {@link LibrarySong} entries.
@@ -8,11 +8,13 @@ import { type LibrarySong } from './types'
  * @param files - Absolute paths to audio files on disk.
  * @returns Songs paired with parsed audio metadata from `music-metadata`.
  */
-const loadMetadata = async (files: string[]) => (
-	PI.map(files, async (filePath: string): Promise<LibrarySong> => ({
-		filePath,
-		metadata: await parseFile(filePath)
-	}))
-)
+const loadMetadata = async (files: string[]) =>
+	PI.map(
+		files,
+		async (filePath: string): Promise<LibrarySong> => ({
+			filePath,
+			metadata: await parseFile(filePath),
+		}),
+	);
 
-export default loadMetadata
+export default loadMetadata;

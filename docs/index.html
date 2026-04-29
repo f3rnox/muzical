@@ -1,578 +1,1467 @@
-<!DOCTYPE html><html class="default" lang="en" data-base="./"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>muzical</title><meta name="description" content="Documentation for muzical"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css?cache=1776918427441"/><link rel="stylesheet" href="assets/highlight.css?cache=1776918427441"/><script defer src="assets/main.js?cache=1776918427441"></script><script async src="assets/icons.js?cache=1776918427441" id="tsd-icons-script"></script><script async src="assets/search.js?cache=1776918427441" id="tsd-search-script"></script><script async src="assets/navigation.js?cache=1776918427441" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="index.html" class="title">muzical</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h1>muzical</h1></div><div class="tsd-panel tsd-typography"><h1 id="muzical" class="tsd-anchor-link">Muzical<a href="#muzical" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
-<p><a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-<a href="https://github.com/f3rnox/muzical/blob/main/package.json"><img src="https://img.shields.io/node/v-lts/muzical?label=node&amp;logo=node.js" alt="Node.js"></a>
-<a href="https://pnpm.io/"><img src="https://img.shields.io/badge/maintained%20with-pnpm-CB3837?logo=pnpm" alt="pnpm"></a></p>
-<p><strong>Muzical</strong> is a terminal music browser and launcher built with
-<a href="https://github.com/vadimdemedes/ink">Ink</a> and React. It indexes audio files
-under a configurable folder, reads tags with
-<a href="https://github.com/Borewit/music-metadata">music-metadata</a>, and hands playback
-off to whichever common CLI media player it finds first on your <code>PATH</code>.</p>
-<p><strong>Summary.</strong> Five views — a three-column library browser, a playlist queue, a
-&quot;now playing&quot; pane, a Soulseek search/download view, and a live config editor —
-all driven by vim-style keybindings.</p>
-<hr>
-<h2 id="table-of-contents" class="tsd-anchor-link">Table of contents<a href="#table-of-contents" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<ul>
-<li><a href="#features">Features</a></li>
-<li><a href="#requirements">Requirements</a></li>
-<li><a href="#install">Install</a></li>
-<li><a href="#configuration">Configuration</a></li>
-<li><a href="#usage">Usage</a></li>
-<li><a href="#views">Views</a></li>
-<li><a href="#keyboard-reference">Keyboard reference</a></li>
-<li><a href="#cli-commands">CLI commands</a></li>
-<li><a href="#playback-backends">Playback backends</a></li>
-<li><a href="#how-it-works">How it works</a></li>
-<li><a href="#development">Development</a></li>
-<li><a href="#documentation">Documentation</a></li>
-<li><a href="#contributing">Contributing</a></li>
-<li><a href="#license">License</a></li>
-<li><a href="#links">Links</a></li>
-</ul>
-<hr>
-<h2 id="features" class="tsd-anchor-link">Features<a href="#features" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<ul>
-<li><strong>Five dedicated views</strong> — library browser, playlist queue, now playing,
-Soulseek client, and an in-app config editor, switchable with <code>1</code>–<code>5</code>.</li>
-<li><strong>Three-pane library UI</strong> — browse artists, albums, and songs with vim-style
-(<code>hjkl</code>) and arrow-key navigation.</li>
-<li><strong>Per-column search</strong> — filter the focused column with <code>/</code>; queries are
-independent per pane (artist, album, song, playlist).</li>
-<li><strong>Playlist queue</strong> — build an ad-hoc queue with <code>space</code>; remove entries or
-clear the whole list from the playlist view.</li>
-<li><strong>Now playing pane</strong> — full-pane track readout with a live progress bar,
-elapsed / total time, track number, and player state.</li>
-<li><strong>Soulseek search &amp; download</strong> — connect with stored credentials, search the
-network, and stream downloads directly into <code>musicDir</code>.</li>
-<li><strong>In-app config editor</strong> — edit <code>musicDir</code>, extensions, and Soulseek
-credentials without leaving the TUI; changes persist to disk immediately.</li>
-<li><strong>Metadata-aware</strong> — albums and tracks come from embedded tags (via
-<code>music-metadata</code>).</li>
-<li><strong>Sensible sorting</strong> — artists and albums alphabetically; tracks ordered for
-listening.</li>
-<li><strong>Live volume control</strong> — <code>+</code> / <code>-</code> adjusts master volume; mpv volume is
-updated over the IPC socket while a track is playing.</li>
-<li><strong>External playback</strong> — no embedded decoder; uses <code>mpg123</code>, <code>mpv</code>, <code>ffplay</code>,
-or <code>vlc</code> if available.</li>
-<li><strong>Resize-aware</strong> — list viewport adapts to terminal height.</li>
-<li><strong>Rich CLI surface</strong> — subcommands to scan, list, and print resolved
-config/player without opening the TUI.</li>
-</ul>
-<hr>
-<h2 id="requirements" class="tsd-anchor-link">Requirements<a href="#requirements" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<ul>
-<li><strong>Node.js</strong> <code>&gt;= 16</code> (see <code>engines</code> in <code>package.json</code>).</li>
-<li><strong>pnpm</strong> (recommended) or another package manager compatible with this repo.</li>
-<li>At least one <strong>playback binary</strong> on your <code>PATH</code> (see
-<a href="#playback-backends">Playback backends</a>).</li>
-<li>A <strong>config file</strong> pointing at your music directory (see
-<a href="#configuration">Configuration</a>).</li>
-</ul>
-<hr>
-<h2 id="install" class="tsd-anchor-link">Install<a href="#install" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<h3 id="from-the-repository" class="tsd-anchor-link">From the repository<a href="#from-the-repository" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
-<pre><code class="bash"><span class="hl-0">git</span><span class="hl-1"> </span><span class="hl-2">clone</span><span class="hl-1"> </span><span class="hl-2">https://github.com/f3rnox/muzical.git</span><br/><span class="hl-0">cd</span><span class="hl-1"> </span><span class="hl-2">muzical</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">install</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">build</span>
+<!doctype html>
+<html class="default" lang="en" data-base="./">
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="x-ua-compatible" content="IE=edge" />
+		<title>muzical</title>
+		<meta name="description" content="Documentation for muzical" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="assets/style.css?cache=1776918427441" />
+		<link rel="stylesheet" href="assets/highlight.css?cache=1776918427441" />
+		<script defer src="assets/main.js?cache=1776918427441"></script>
+		<script
+			async
+			src="assets/icons.js?cache=1776918427441"
+			id="tsd-icons-script"
+		></script>
+		<script
+			async
+			src="assets/search.js?cache=1776918427441"
+			id="tsd-search-script"
+		></script>
+		<script
+			async
+			src="assets/navigation.js?cache=1776918427441"
+			id="tsd-nav-script"
+		></script>
+	</head>
+	<body>
+		<script>
+			document.documentElement.dataset.theme =
+				localStorage.getItem("tsd-theme") || "os";
+			document.body.style.display = "none";
+			setTimeout(
+				() =>
+					window.app
+						? app.showPage()
+						: document.body.style.removeProperty("display"),
+				500,
+			);
+		</script>
+		<header class="tsd-page-toolbar">
+			<div class="tsd-toolbar-contents container">
+				<a href="index.html" class="title">muzical</a>
+				<div id="tsd-toolbar-links"></div>
+				<button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 16 16"
+						fill="none"
+						aria-hidden="true"
+					>
+						<use href="assets/icons.svg#icon-search"></use>
+					</svg>
+				</button>
+				<dialog id="tsd-search" aria-label="Search">
+					<input
+						role="combobox"
+						id="tsd-search-input"
+						aria-controls="tsd-search-results"
+						aria-autocomplete="list"
+						aria-expanded="true"
+						autocapitalize="off"
+						autocomplete="off"
+						placeholder="Search the docs"
+						maxlength="100"
+					/>
+					<ul role="listbox" id="tsd-search-results"></ul>
+					<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+						<div>Preparing search index...</div>
+					</div>
+				</dialog>
+				<a
+					href="#"
+					class="tsd-widget menu"
+					id="tsd-toolbar-menu-trigger"
+					data-toggle="menu"
+					aria-label="Menu"
+					><svg
+						width="16"
+						height="16"
+						viewBox="0 0 16 16"
+						fill="none"
+						aria-hidden="true"
+					>
+						<use href="assets/icons.svg#icon-menu"></use></svg
+				></a>
+			</div>
+		</header>
+		<div class="container container-main">
+			<div class="col-content">
+				<div class="tsd-page-title"><h1>muzical</h1></div>
+				<div class="tsd-panel tsd-typography">
+					<h1 id="muzical" class="tsd-anchor-link">
+						Muzical<a
+							href="#muzical"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h1>
+					<p>
+						<a href="https://opensource.org/licenses/MIT"
+							><img
+								src="https://img.shields.io/badge/License-MIT-yellow.svg"
+								alt="License: MIT"
+						/></a>
+						<a href="https://github.com/f3rnox/muzical/blob/main/package.json"
+							><img
+								src="https://img.shields.io/node/v-lts/muzical?label=node&amp;logo=node.js"
+								alt="Node.js"
+						/></a>
+						<a href="https://pnpm.io/"
+							><img
+								src="https://img.shields.io/badge/maintained%20with-pnpm-CB3837?logo=pnpm"
+								alt="pnpm"
+						/></a>
+					</p>
+					<p>
+						<strong>Muzical</strong> is a terminal music browser and launcher
+						built with <a href="https://github.com/vadimdemedes/ink">Ink</a> and
+						React. It indexes audio files under a configurable folder, reads
+						tags with
+						<a href="https://github.com/Borewit/music-metadata"
+							>music-metadata</a
+						>, and hands playback off to whichever common CLI media player it
+						finds first on your <code>PATH</code>.
+					</p>
+					<p>
+						<strong>Summary.</strong> Five views — a three-column library
+						browser, a playlist queue, a &quot;now playing&quot; pane, a
+						Soulseek search/download view, and a live config editor — all driven
+						by vim-style keybindings.
+					</p>
+					<hr />
+					<h2 id="table-of-contents" class="tsd-anchor-link">
+						Table of contents<a
+							href="#table-of-contents"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<ul>
+						<li><a href="#features">Features</a></li>
+						<li><a href="#requirements">Requirements</a></li>
+						<li><a href="#install">Install</a></li>
+						<li><a href="#configuration">Configuration</a></li>
+						<li><a href="#usage">Usage</a></li>
+						<li><a href="#views">Views</a></li>
+						<li><a href="#keyboard-reference">Keyboard reference</a></li>
+						<li><a href="#cli-commands">CLI commands</a></li>
+						<li><a href="#playback-backends">Playback backends</a></li>
+						<li><a href="#how-it-works">How it works</a></li>
+						<li><a href="#development">Development</a></li>
+						<li><a href="#documentation">Documentation</a></li>
+						<li><a href="#contributing">Contributing</a></li>
+						<li><a href="#license">License</a></li>
+						<li><a href="#links">Links</a></li>
+					</ul>
+					<hr />
+					<h2 id="features" class="tsd-anchor-link">
+						Features<a
+							href="#features"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<ul>
+						<li>
+							<strong>Five dedicated views</strong> — library browser, playlist
+							queue, now playing, Soulseek client, and an in-app config editor,
+							switchable with <code>1</code>–<code>5</code>.
+						</li>
+						<li>
+							<strong>Three-pane library UI</strong> — browse artists, albums,
+							and songs with vim-style (<code>hjkl</code>) and arrow-key
+							navigation.
+						</li>
+						<li>
+							<strong>Per-column search</strong> — filter the focused column
+							with <code>/</code>; queries are independent per pane (artist,
+							album, song, playlist).
+						</li>
+						<li>
+							<strong>Playlist queue</strong> — build an ad-hoc queue with
+							<code>space</code>; remove entries or clear the whole list from
+							the playlist view.
+						</li>
+						<li>
+							<strong>Now playing pane</strong> — full-pane track readout with a
+							live progress bar, elapsed / total time, track number, and player
+							state.
+						</li>
+						<li>
+							<strong>Soulseek search &amp; download</strong> — connect with
+							stored credentials, search the network, and stream downloads
+							directly into <code>musicDir</code>.
+						</li>
+						<li>
+							<strong>In-app config editor</strong> — edit
+							<code>musicDir</code>, extensions, and Soulseek credentials
+							without leaving the TUI; changes persist to disk immediately.
+						</li>
+						<li>
+							<strong>Metadata-aware</strong> — albums and tracks come from
+							embedded tags (via <code>music-metadata</code>).
+						</li>
+						<li>
+							<strong>Sensible sorting</strong> — artists and albums
+							alphabetically; tracks ordered for listening.
+						</li>
+						<li>
+							<strong>Live volume control</strong> — <code>+</code> /
+							<code>-</code> adjusts master volume; mpv volume is updated over
+							the IPC socket while a track is playing.
+						</li>
+						<li>
+							<strong>External playback</strong> — no embedded decoder; uses
+							<code>mpg123</code>, <code>mpv</code>, <code>ffplay</code>, or
+							<code>vlc</code> if available.
+						</li>
+						<li>
+							<strong>Resize-aware</strong> — list viewport adapts to terminal
+							height.
+						</li>
+						<li>
+							<strong>Rich CLI surface</strong> — subcommands to scan, list, and
+							print resolved config/player without opening the TUI.
+						</li>
+					</ul>
+					<hr />
+					<h2 id="requirements" class="tsd-anchor-link">
+						Requirements<a
+							href="#requirements"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<ul>
+						<li>
+							<strong>Node.js</strong> <code>&gt;= 16</code> (see
+							<code>engines</code> in <code>package.json</code>).
+						</li>
+						<li>
+							<strong>pnpm</strong> (recommended) or another package manager
+							compatible with this repo.
+						</li>
+						<li>
+							At least one <strong>playback binary</strong> on your
+							<code>PATH</code> (see
+							<a href="#playback-backends">Playback backends</a>).
+						</li>
+						<li>
+							A <strong>config file</strong> pointing at your music directory
+							(see <a href="#configuration">Configuration</a>).
+						</li>
+					</ul>
+					<hr />
+					<h2 id="install" class="tsd-anchor-link">
+						Install<a
+							href="#install"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<h3 id="from-the-repository" class="tsd-anchor-link">
+						From the repository<a
+							href="#from-the-repository"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h3>
+					<pre><code class="bash"><span class="hl-0">git</span><span class="hl-1"> </span><span class="hl-2">clone</span><span class="hl-1"> </span><span class="hl-2">https://github.com/f3rnox/muzical.git</span><br/><span class="hl-0">cd</span><span class="hl-1"> </span><span class="hl-2">muzical</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">install</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">build</span>
 </code><button type="button">Copy</button></pre>
 
-<p>Run locally without installing globally:</p>
-<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">start</span><br/><span class="hl-3"># or, during development:</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">dev</span>
+					<p>Run locally without installing globally:</p>
+					<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">start</span><br/><span class="hl-3"># or, during development:</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">dev</span>
 </code><button type="button">Copy</button></pre>
 
-<p>Link the CLI globally (optional):</p>
-<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">link</span><span class="hl-1"> </span><span class="hl-4">--global</span><br/><span class="hl-0">muzical</span>
+					<p>Link the CLI globally (optional):</p>
+					<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">link</span><span class="hl-1"> </span><span class="hl-4">--global</span><br/><span class="hl-0">muzical</span>
 </code><button type="button">Copy</button></pre>
 
-<h3 id="published-package" class="tsd-anchor-link">Published package<a href="#published-package" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
-<p>When published to npm, install with:</p>
-<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">add</span><span class="hl-1"> </span><span class="hl-4">-g</span><span class="hl-1"> </span><span class="hl-2">muzical</span><br/><span class="hl-3"># or: npm install -g muzical</span>
+					<h3 id="published-package" class="tsd-anchor-link">
+						Published package<a
+							href="#published-package"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h3>
+					<p>When published to npm, install with:</p>
+					<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">add</span><span class="hl-1"> </span><span class="hl-4">-g</span><span class="hl-1"> </span><span class="hl-2">muzical</span><br/><span class="hl-3"># or: npm install -g muzical</span>
 </code><button type="button">Copy</button></pre>
 
-<hr>
-<h2 id="configuration" class="tsd-anchor-link">Configuration<a href="#configuration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<p>Muzical reads <code>config.json</code> from the OS config directory for the <code>muzical</code>
-application name (via <a href="https://github.com/sindresorhus/env-paths">env-paths</a>):</p>
-<ul>
-<li><strong>Linux:</strong> <code>~/.config/muzical/config.json</code></li>
-<li><strong>macOS:</strong> <code>~/Library/Preferences/muzical/config.json</code></li>
-<li><strong>Windows:</strong> <code>%APPDATA%\muzical\config.json</code></li>
-</ul>
-<p>Pass <code>--config &lt;path&gt;</code> to use a file at an arbitrary location. If the default
-config directory does not exist it is created on startup. <strong>If <code>config.json</code> is
-missing and <code>--music-dir</code> is not supplied, the program exits</strong> with a message
-showing the expected path.</p>
-<h3 id="shape" class="tsd-anchor-link"><code>config.json</code> shape<a href="#shape" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
-<pre><code class="json"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-5">&quot;musicDir&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;/absolute/path/to/your/music&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-5">&quot;songExtensions&quot;</span><span class="hl-1">: [</span><span class="hl-2">&quot;.mp3&quot;</span><span class="hl-1">, </span><span class="hl-2">&quot;.flac&quot;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-5">&quot;soulseekUsername&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-5">&quot;soulseekPassword&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;&quot;</span><br/><span class="hl-1">}</span>
+					<hr />
+					<h2 id="configuration" class="tsd-anchor-link">
+						Configuration<a
+							href="#configuration"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<p>
+						Muzical reads <code>config.json</code> from the OS config directory
+						for the <code>muzical</code> application name (via
+						<a href="https://github.com/sindresorhus/env-paths">env-paths</a>):
+					</p>
+					<ul>
+						<li>
+							<strong>Linux:</strong> <code>~/.config/muzical/config.json</code>
+						</li>
+						<li>
+							<strong>macOS:</strong>
+							<code>~/Library/Preferences/muzical/config.json</code>
+						</li>
+						<li>
+							<strong>Windows:</strong>
+							<code>%APPDATA%\muzical\config.json</code>
+						</li>
+					</ul>
+					<p>
+						Pass <code>--config &lt;path&gt;</code> to use a file at an
+						arbitrary location. If the default config directory does not exist
+						it is created on startup.
+						<strong
+							>If <code>config.json</code> is missing and
+							<code>--music-dir</code> is not supplied, the program
+							exits</strong
+						>
+						with a message showing the expected path.
+					</p>
+					<h3 id="shape" class="tsd-anchor-link">
+						<code>config.json</code> shape<a
+							href="#shape"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h3>
+					<pre><code class="json"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-5">&quot;musicDir&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;/absolute/path/to/your/music&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-5">&quot;songExtensions&quot;</span><span class="hl-1">: [</span><span class="hl-2">&quot;.mp3&quot;</span><span class="hl-1">, </span><span class="hl-2">&quot;.flac&quot;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-5">&quot;soulseekUsername&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-5">&quot;soulseekPassword&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;&quot;</span><br/><span class="hl-1">}</span>
 </code><button type="button">Copy</button></pre>
 
-<p>Fields:</p>
-<ul>
-<li><strong><code>musicDir</code></strong> (required) — Root directory scanned recursively for audio
-files.</li>
-<li><strong><code>songExtensions</code></strong> (optional) — Allowed suffixes; defaults to
-<code>[&quot;.mp3&quot;, &quot;.flac&quot;]</code>.</li>
-<li><strong><code>soulseekUsername</code></strong> (optional) — Used by the Soulseek view to connect.
-Empty by default.</li>
-<li><strong><code>soulseekPassword</code></strong> (optional) — Stored in plaintext alongside the
-username. Empty by default.</li>
-</ul>
-<p>The Soulseek fields can also be edited live from the in-app <strong>Config</strong> view
-(press <code>5</code>).</p>
-<hr>
-<h2 id="usage" class="tsd-anchor-link">Usage<a href="#usage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<pre><code class="bash"><span class="hl-0">muzical</span>
+					<p>Fields:</p>
+					<ul>
+						<li>
+							<strong><code>musicDir</code></strong> (required) — Root directory
+							scanned recursively for audio files.
+						</li>
+						<li>
+							<strong><code>songExtensions</code></strong> (optional) — Allowed
+							suffixes; defaults to
+							<code>[&quot;.mp3&quot;, &quot;.flac&quot;]</code>.
+						</li>
+						<li>
+							<strong><code>soulseekUsername</code></strong> (optional) — Used
+							by the Soulseek view to connect. Empty by default.
+						</li>
+						<li>
+							<strong><code>soulseekPassword</code></strong> (optional) — Stored
+							in plaintext alongside the username. Empty by default.
+						</li>
+					</ul>
+					<p>
+						The Soulseek fields can also be edited live from the in-app
+						<strong>Config</strong> view (press <code>5</code>).
+					</p>
+					<hr />
+					<h2 id="usage" class="tsd-anchor-link">
+						Usage<a href="#usage" aria-label="Permalink" class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<pre><code class="bash"><span class="hl-0">muzical</span>
 </code><button type="button">Copy</button></pre>
 
-<p>On launch, Muzical clears the screen, loads the library (this can take a moment
-on large collections), renders the TUI, and clears again on exit. Use
-<code>--no-clear-screen</code> to keep terminal scrollback.</p>
-<h3 id="quick-navigation" class="tsd-anchor-link">Quick navigation<a href="#quick-navigation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
-<ul>
-<li>Press <strong><code>1</code></strong> – <strong><code>5</code></strong> to switch between Library, Playlist, Now Playing,
-Soulseek, and Config views.</li>
-<li>Use <strong>left/right</strong> (or <code>h</code> / <code>l</code>) to move focus between <strong>Artists</strong>,
-<strong>Albums</strong>, and <strong>Songs</strong> (library view only).</li>
-<li>Use <strong>up/down</strong> (or <code>j</code> / <code>k</code>), <strong>Page Up/Down</strong>, or <strong>g</strong> / <strong>G</strong> to move
-through the focused list.</li>
-<li>Press <strong>Enter</strong> or <strong>p</strong> on a selected track to toggle playback. <strong>Space</strong>
-also toggles playback in the Now Playing view.</li>
-<li>Press <strong>s</strong> to stop playback; <strong>+</strong> / <strong>-</strong> adjust volume by 5%.</li>
-<li>Press <strong><code>/</code></strong> to search within the focused column; <strong>Enter</strong> accepts, <strong>Esc</strong>
-cancels and clears that column's query.</li>
-<li>In the library view, <strong>space</strong> appends the focused artist/album/song to the
-playlist. In the playlist view, <strong>space</strong> removes the focused entry.</li>
-<li>Press <strong>c</strong> to clear the focused column's filter (or clear the entire
-playlist in the playlist view).</li>
-<li>Press <strong>q</strong> or <strong>Esc</strong> to quit.</li>
-</ul>
-<hr>
-<h2 id="views" class="tsd-anchor-link">Views<a href="#views" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<p>Muzical is organized as five top-level views. Switching views never
-interrupts playback.</p>
-<ul>
-<li><strong><code>1</code> Library</strong> — three-column artist → album → song browser with per-pane
-search.</li>
-<li><strong><code>2</code> Playlist</strong> — ad-hoc play queue built with <code>space</code> from the library
-view.</li>
-<li><strong><code>3</code> Now Playing</strong> — full-pane readout with track metadata and a live
-progress bar.</li>
-<li><strong><code>4</code> Soulseek</strong> — connect, search, and download tracks into <code>musicDir</code>.</li>
-<li><strong><code>5</code> Config</strong> — live editor for <code>config.json</code> fields (music dir,
-extensions, Soulseek credentials).</li>
-</ul>
-<p>The <strong>Soulseek</strong> and <strong>Config</strong> views own their own keyboard handling; global
-bindings (other than <code>1</code>–<code>5</code> view switches and <code>q</code> to quit) are suspended while
-either is active. The <strong>Now Playing</strong> view hides the bottom playback bar since
-its own progress bar is already present.</p>
-<hr>
-<h2 id="keyboard-reference" class="tsd-anchor-link">Keyboard reference<a href="#keyboard-reference" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<h3 id="global-library-playlist-now-playing" class="tsd-anchor-link">Global (Library, Playlist, Now Playing)<a href="#global-library-playlist-now-playing" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
-<table>
-<thead>
-<tr>
-<th>Mode</th>
-<th>Key(s)</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Normal</td>
-<td><code>1</code>–<code>5</code></td>
-<td>Switch view</td>
-</tr>
-<tr>
-<td>Normal</td>
-<td><code>↑</code> <code>↓</code> / <code>j</code> <code>k</code></td>
-<td>Move selection in focused list</td>
-</tr>
-<tr>
-<td>Normal</td>
-<td><code>PgUp</code> / <code>PgDn</code></td>
-<td>Page by visible list height</td>
-</tr>
-<tr>
-<td>Normal</td>
-<td><code>g</code> / <code>G</code></td>
-<td>Jump to first / last item</td>
-</tr>
-<tr>
-<td>Normal</td>
-<td><code>Enter</code> / <code>p</code></td>
-<td>Toggle playback for selected song</td>
-</tr>
-<tr>
-<td>Normal</td>
-<td><code>s</code></td>
-<td>Stop playback</td>
-</tr>
-<tr>
-<td>Normal</td>
-<td><code>+</code> / <code>=</code> / <code>-</code></td>
-<td>Raise / lower volume (5% steps)</td>
-</tr>
-<tr>
-<td>Normal</td>
-<td><code>/</code></td>
-<td>Start search in focused column</td>
-</tr>
-<tr>
-<td>Normal</td>
-<td><code>q</code> / <code>Esc</code></td>
-<td>Quit</td>
-</tr>
-<tr>
-<td>Search</td>
-<td>type</td>
-<td>Append to query</td>
-</tr>
-<tr>
-<td>Search</td>
-<td><code>Backspace</code> / <code>Delete</code></td>
-<td>Delete last character</td>
-</tr>
-<tr>
-<td>Search</td>
-<td><code>↑</code> <code>↓</code></td>
-<td>Move selection while searching</td>
-</tr>
-<tr>
-<td>Search</td>
-<td><code>Enter</code></td>
-<td>Leave search mode (keep query)</td>
-</tr>
-<tr>
-<td>Search</td>
-<td><code>Esc</code></td>
-<td>Cancel search and clear the query</td>
-</tr>
-</tbody>
-</table>
-<h3 id="library-view" class="tsd-anchor-link">Library view<a href="#library-view" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>←</code> <code>→</code> / <code>h</code> <code>l</code></td>
-<td>Focus previous / next column</td>
-</tr>
-<tr>
-<td><code>space</code></td>
-<td>Append focused artist/album/song to queue</td>
-</tr>
-<tr>
-<td><code>c</code></td>
-<td>Clear the focused column's search query</td>
-</tr>
-</tbody>
-</table>
-<h3 id="playlist-view" class="tsd-anchor-link">Playlist view<a href="#playlist-view" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>space</code></td>
-<td>Remove the selected entry from the queue</td>
-</tr>
-<tr>
-<td><code>c</code></td>
-<td>Clear the entire playlist</td>
-</tr>
-</tbody>
-</table>
-<h3 id="now-playing-view" class="tsd-anchor-link">Now Playing view<a href="#now-playing-view" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Enter</code> / <code>p</code> / <code>space</code></td>
-<td>Toggle playback</td>
-</tr>
-<tr>
-<td><code>s</code></td>
-<td>Stop playback</td>
-</tr>
-<tr>
-<td><code>+</code> / <code>-</code></td>
-<td>Adjust volume</td>
-</tr>
-</tbody>
-</table>
-<h3 id="soulseek-view-view-local-bindings" class="tsd-anchor-link">Soulseek view (view-local bindings)<a href="#soulseek-view-view-local-bindings" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
-<table>
-<thead>
-<tr>
-<th>Mode</th>
-<th>Key(s)</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Input</td>
-<td>type</td>
-<td>Append to query</td>
-</tr>
-<tr>
-<td>Input</td>
-<td><code>Backspace</code></td>
-<td>Delete last character</td>
-</tr>
-<tr>
-<td>Input</td>
-<td><code>Enter</code></td>
-<td>Run search</td>
-</tr>
-<tr>
-<td>Input</td>
-<td><code>Esc</code></td>
-<td>Return to results list</td>
-</tr>
-<tr>
-<td>List</td>
-<td><code>/</code> / <code>i</code></td>
-<td>Open search input</td>
-</tr>
-<tr>
-<td>List</td>
-<td><code>c</code></td>
-<td>Connect (or reconnect)</td>
-</tr>
-<tr>
-<td>List</td>
-<td><code>↑</code> <code>↓</code> / <code>j</code> <code>k</code></td>
-<td>Move selection</td>
-</tr>
-<tr>
-<td>List</td>
-<td><code>PgUp</code> / <code>PgDn</code></td>
-<td>Page through results</td>
-</tr>
-<tr>
-<td>List</td>
-<td><code>g</code> / <code>G</code></td>
-<td>Jump to first / last result</td>
-</tr>
-<tr>
-<td>List</td>
-<td><code>Enter</code> / <code>d</code> / <code>space</code></td>
-<td>Download the selected result</td>
-</tr>
-<tr>
-<td>List</td>
-<td><code>x</code></td>
-<td>Clear results</td>
-</tr>
-<tr>
-<td>List</td>
-<td><code>1</code>–<code>5</code></td>
-<td>Switch view</td>
-</tr>
-<tr>
-<td>List</td>
-<td><code>q</code></td>
-<td>Quit</td>
-</tr>
-</tbody>
-</table>
-<h3 id="config-view-view-local-bindings" class="tsd-anchor-link">Config view (view-local bindings)<a href="#config-view-view-local-bindings" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
-<table>
-<thead>
-<tr>
-<th>Mode</th>
-<th>Key(s)</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Nav</td>
-<td><code>↑</code> <code>↓</code> / <code>j</code> <code>k</code></td>
-<td>Move between fields</td>
-</tr>
-<tr>
-<td>Nav</td>
-<td><code>Enter</code> / <code>i</code></td>
-<td>Begin editing the focused field</td>
-</tr>
-<tr>
-<td>Nav</td>
-<td><code>1</code>–<code>5</code></td>
-<td>Switch view</td>
-</tr>
-<tr>
-<td>Nav</td>
-<td><code>q</code> / <code>Esc</code></td>
-<td>Quit</td>
-</tr>
-<tr>
-<td>Edit</td>
-<td>type</td>
-<td>Append to draft</td>
-</tr>
-<tr>
-<td>Edit</td>
-<td><code>Backspace</code> / <code>Delete</code></td>
-<td>Delete last character</td>
-</tr>
-<tr>
-<td>Edit</td>
-<td><code>Enter</code></td>
-<td>Save the draft and persist to disk</td>
-</tr>
-<tr>
-<td>Edit</td>
-<td><code>Esc</code></td>
-<td>Cancel edit, keep existing value</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="cli-commands" class="tsd-anchor-link">CLI commands<a href="#cli-commands" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<p>The binary accepts global options that apply to every mode and a handful of
-subcommands for non-interactive use. Run <code>muzical --help</code> (or <code>muzical &lt;subcommand&gt; --help</code>) for the authoritative list.</p>
-<h3 id="global-options" class="tsd-anchor-link">Global options<a href="#global-options" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
-<table>
-<thead>
-<tr>
-<th>Flag</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>-d, --music-dir &lt;path&gt;</code></td>
-<td>Override <code>musicDir</code> from config</td>
-</tr>
-<tr>
-<td><code>-e, --extension &lt;ext&gt;</code></td>
-<td>Add / override a song extension (repeatable)</td>
-</tr>
-<tr>
-<td><code>-p, --player &lt;name&gt;</code></td>
-<td>Force a backend (mpg123 / mpv / ffplay / vlc)</td>
-</tr>
-<tr>
-<td><code>-c, --config &lt;path&gt;</code></td>
-<td>Use a custom <code>config.json</code> location</td>
-</tr>
-<tr>
-<td><code>--no-clear-screen</code></td>
-<td>Do not clear terminal on start/exit</td>
-</tr>
-<tr>
-<td><code>-v, --version</code></td>
-<td>Print version and exit</td>
-</tr>
-</tbody>
-</table>
-<h3 id="subcommands" class="tsd-anchor-link">Subcommands<a href="#subcommands" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
-<ul>
-<li><strong><code>muzical</code></strong> — launch the TUI (default).</li>
-<li><strong><code>muzical config</code></strong> — print the resolved configuration as JSON and exit.</li>
-<li><strong><code>muzical player [--player &lt;name&gt;] [--all]</code></strong> — print the detected playback
-backend (or check a specific one / list all candidates).</li>
-<li><strong><code>muzical scan [--json]</code></strong> — scan the music library and print a summary
-without launching the UI.</li>
-<li><strong><code>muzical list &lt;artists|albums|songs&gt; [--artist ...] [--album ...] [--json]</code></strong>
-— list library contents with optional filters.</li>
-</ul>
-<h3 id="examples" class="tsd-anchor-link">Examples<a href="#examples" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
-<pre><code class="bash"><span class="hl-0">muzical</span><br/><span class="hl-0">muzical</span><span class="hl-1"> </span><span class="hl-4">--music-dir</span><span class="hl-1"> </span><span class="hl-2">~/Music</span><span class="hl-1"> </span><span class="hl-4">--player</span><span class="hl-1"> </span><span class="hl-2">mpv</span><br/><span class="hl-0">muzical</span><span class="hl-1"> </span><span class="hl-2">scan</span><span class="hl-1"> </span><span class="hl-4">--json</span><br/><span class="hl-0">muzical</span><span class="hl-1"> </span><span class="hl-2">list</span><span class="hl-1"> </span><span class="hl-2">artists</span><br/><span class="hl-0">muzical</span><span class="hl-1"> </span><span class="hl-2">list</span><span class="hl-1"> </span><span class="hl-2">songs</span><span class="hl-1"> </span><span class="hl-4">--artist</span><span class="hl-1"> </span><span class="hl-2">&#39;Radiohead&#39;</span><span class="hl-1"> </span><span class="hl-4">--album</span><span class="hl-1"> </span><span class="hl-2">&#39;OK Computer&#39;</span><br/><span class="hl-0">muzical</span><span class="hl-1"> </span><span class="hl-2">player</span><span class="hl-1"> </span><span class="hl-4">--all</span>
+					<p>
+						On launch, Muzical clears the screen, loads the library (this can
+						take a moment on large collections), renders the TUI, and clears
+						again on exit. Use <code>--no-clear-screen</code> to keep terminal
+						scrollback.
+					</p>
+					<h3 id="quick-navigation" class="tsd-anchor-link">
+						Quick navigation<a
+							href="#quick-navigation"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h3>
+					<ul>
+						<li>
+							Press <strong><code>1</code></strong> –
+							<strong><code>5</code></strong> to switch between Library,
+							Playlist, Now Playing, Soulseek, and Config views.
+						</li>
+						<li>
+							Use <strong>left/right</strong> (or <code>h</code> /
+							<code>l</code>) to move focus between <strong>Artists</strong>,
+							<strong>Albums</strong>, and <strong>Songs</strong> (library view
+							only).
+						</li>
+						<li>
+							Use <strong>up/down</strong> (or <code>j</code> / <code>k</code>),
+							<strong>Page Up/Down</strong>, or <strong>g</strong> /
+							<strong>G</strong> to move through the focused list.
+						</li>
+						<li>
+							Press <strong>Enter</strong> or <strong>p</strong> on a selected
+							track to toggle playback. <strong>Space</strong> also toggles
+							playback in the Now Playing view.
+						</li>
+						<li>
+							Press <strong>s</strong> to stop playback; <strong>+</strong> /
+							<strong>-</strong> adjust volume by 5%.
+						</li>
+						<li>
+							Press <strong><code>/</code></strong> to search within the focused
+							column; <strong>Enter</strong> accepts,
+							<strong>Esc</strong> cancels and clears that column's query.
+						</li>
+						<li>
+							In the library view, <strong>space</strong> appends the focused
+							artist/album/song to the playlist. In the playlist view,
+							<strong>space</strong> removes the focused entry.
+						</li>
+						<li>
+							Press <strong>c</strong> to clear the focused column's filter (or
+							clear the entire playlist in the playlist view).
+						</li>
+						<li>Press <strong>q</strong> or <strong>Esc</strong> to quit.</li>
+					</ul>
+					<hr />
+					<h2 id="views" class="tsd-anchor-link">
+						Views<a href="#views" aria-label="Permalink" class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<p>
+						Muzical is organized as five top-level views. Switching views never
+						interrupts playback.
+					</p>
+					<ul>
+						<li>
+							<strong><code>1</code> Library</strong> — three-column artist →
+							album → song browser with per-pane search.
+						</li>
+						<li>
+							<strong><code>2</code> Playlist</strong> — ad-hoc play queue built
+							with <code>space</code> from the library view.
+						</li>
+						<li>
+							<strong><code>3</code> Now Playing</strong> — full-pane readout
+							with track metadata and a live progress bar.
+						</li>
+						<li>
+							<strong><code>4</code> Soulseek</strong> — connect, search, and
+							download tracks into <code>musicDir</code>.
+						</li>
+						<li>
+							<strong><code>5</code> Config</strong> — live editor for
+							<code>config.json</code> fields (music dir, extensions, Soulseek
+							credentials).
+						</li>
+					</ul>
+					<p>
+						The <strong>Soulseek</strong> and <strong>Config</strong> views own
+						their own keyboard handling; global bindings (other than
+						<code>1</code>–<code>5</code> view switches and <code>q</code> to
+						quit) are suspended while either is active. The
+						<strong>Now Playing</strong> view hides the bottom playback bar
+						since its own progress bar is already present.
+					</p>
+					<hr />
+					<h2 id="keyboard-reference" class="tsd-anchor-link">
+						Keyboard reference<a
+							href="#keyboard-reference"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<h3 id="global-library-playlist-now-playing" class="tsd-anchor-link">
+						Global (Library, Playlist, Now Playing)<a
+							href="#global-library-playlist-now-playing"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h3>
+					<table>
+						<thead>
+							<tr>
+								<th>Mode</th>
+								<th>Key(s)</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Normal</td>
+								<td><code>1</code>–<code>5</code></td>
+								<td>Switch view</td>
+							</tr>
+							<tr>
+								<td>Normal</td>
+								<td>
+									<code>↑</code> <code>↓</code> / <code>j</code> <code>k</code>
+								</td>
+								<td>Move selection in focused list</td>
+							</tr>
+							<tr>
+								<td>Normal</td>
+								<td><code>PgUp</code> / <code>PgDn</code></td>
+								<td>Page by visible list height</td>
+							</tr>
+							<tr>
+								<td>Normal</td>
+								<td><code>g</code> / <code>G</code></td>
+								<td>Jump to first / last item</td>
+							</tr>
+							<tr>
+								<td>Normal</td>
+								<td><code>Enter</code> / <code>p</code></td>
+								<td>Toggle playback for selected song</td>
+							</tr>
+							<tr>
+								<td>Normal</td>
+								<td><code>s</code></td>
+								<td>Stop playback</td>
+							</tr>
+							<tr>
+								<td>Normal</td>
+								<td><code>+</code> / <code>=</code> / <code>-</code></td>
+								<td>Raise / lower volume (5% steps)</td>
+							</tr>
+							<tr>
+								<td>Normal</td>
+								<td><code>/</code></td>
+								<td>Start search in focused column</td>
+							</tr>
+							<tr>
+								<td>Normal</td>
+								<td><code>q</code> / <code>Esc</code></td>
+								<td>Quit</td>
+							</tr>
+							<tr>
+								<td>Search</td>
+								<td>type</td>
+								<td>Append to query</td>
+							</tr>
+							<tr>
+								<td>Search</td>
+								<td><code>Backspace</code> / <code>Delete</code></td>
+								<td>Delete last character</td>
+							</tr>
+							<tr>
+								<td>Search</td>
+								<td><code>↑</code> <code>↓</code></td>
+								<td>Move selection while searching</td>
+							</tr>
+							<tr>
+								<td>Search</td>
+								<td><code>Enter</code></td>
+								<td>Leave search mode (keep query)</td>
+							</tr>
+							<tr>
+								<td>Search</td>
+								<td><code>Esc</code></td>
+								<td>Cancel search and clear the query</td>
+							</tr>
+						</tbody>
+					</table>
+					<h3 id="library-view" class="tsd-anchor-link">
+						Library view<a
+							href="#library-view"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h3>
+					<table>
+						<thead>
+							<tr>
+								<th>Key</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									<code>←</code> <code>→</code> / <code>h</code> <code>l</code>
+								</td>
+								<td>Focus previous / next column</td>
+							</tr>
+							<tr>
+								<td><code>space</code></td>
+								<td>Append focused artist/album/song to queue</td>
+							</tr>
+							<tr>
+								<td><code>c</code></td>
+								<td>Clear the focused column's search query</td>
+							</tr>
+						</tbody>
+					</table>
+					<h3 id="playlist-view" class="tsd-anchor-link">
+						Playlist view<a
+							href="#playlist-view"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h3>
+					<table>
+						<thead>
+							<tr>
+								<th>Key</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><code>space</code></td>
+								<td>Remove the selected entry from the queue</td>
+							</tr>
+							<tr>
+								<td><code>c</code></td>
+								<td>Clear the entire playlist</td>
+							</tr>
+						</tbody>
+					</table>
+					<h3 id="now-playing-view" class="tsd-anchor-link">
+						Now Playing view<a
+							href="#now-playing-view"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h3>
+					<table>
+						<thead>
+							<tr>
+								<th>Key</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									<code>Enter</code> / <code>p</code> / <code>space</code>
+								</td>
+								<td>Toggle playback</td>
+							</tr>
+							<tr>
+								<td><code>s</code></td>
+								<td>Stop playback</td>
+							</tr>
+							<tr>
+								<td><code>+</code> / <code>-</code></td>
+								<td>Adjust volume</td>
+							</tr>
+						</tbody>
+					</table>
+					<h3 id="soulseek-view-view-local-bindings" class="tsd-anchor-link">
+						Soulseek view (view-local bindings)<a
+							href="#soulseek-view-view-local-bindings"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h3>
+					<table>
+						<thead>
+							<tr>
+								<th>Mode</th>
+								<th>Key(s)</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Input</td>
+								<td>type</td>
+								<td>Append to query</td>
+							</tr>
+							<tr>
+								<td>Input</td>
+								<td><code>Backspace</code></td>
+								<td>Delete last character</td>
+							</tr>
+							<tr>
+								<td>Input</td>
+								<td><code>Enter</code></td>
+								<td>Run search</td>
+							</tr>
+							<tr>
+								<td>Input</td>
+								<td><code>Esc</code></td>
+								<td>Return to results list</td>
+							</tr>
+							<tr>
+								<td>List</td>
+								<td><code>/</code> / <code>i</code></td>
+								<td>Open search input</td>
+							</tr>
+							<tr>
+								<td>List</td>
+								<td><code>c</code></td>
+								<td>Connect (or reconnect)</td>
+							</tr>
+							<tr>
+								<td>List</td>
+								<td>
+									<code>↑</code> <code>↓</code> / <code>j</code> <code>k</code>
+								</td>
+								<td>Move selection</td>
+							</tr>
+							<tr>
+								<td>List</td>
+								<td><code>PgUp</code> / <code>PgDn</code></td>
+								<td>Page through results</td>
+							</tr>
+							<tr>
+								<td>List</td>
+								<td><code>g</code> / <code>G</code></td>
+								<td>Jump to first / last result</td>
+							</tr>
+							<tr>
+								<td>List</td>
+								<td>
+									<code>Enter</code> / <code>d</code> / <code>space</code>
+								</td>
+								<td>Download the selected result</td>
+							</tr>
+							<tr>
+								<td>List</td>
+								<td><code>x</code></td>
+								<td>Clear results</td>
+							</tr>
+							<tr>
+								<td>List</td>
+								<td><code>1</code>–<code>5</code></td>
+								<td>Switch view</td>
+							</tr>
+							<tr>
+								<td>List</td>
+								<td><code>q</code></td>
+								<td>Quit</td>
+							</tr>
+						</tbody>
+					</table>
+					<h3 id="config-view-view-local-bindings" class="tsd-anchor-link">
+						Config view (view-local bindings)<a
+							href="#config-view-view-local-bindings"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h3>
+					<table>
+						<thead>
+							<tr>
+								<th>Mode</th>
+								<th>Key(s)</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Nav</td>
+								<td>
+									<code>↑</code> <code>↓</code> / <code>j</code> <code>k</code>
+								</td>
+								<td>Move between fields</td>
+							</tr>
+							<tr>
+								<td>Nav</td>
+								<td><code>Enter</code> / <code>i</code></td>
+								<td>Begin editing the focused field</td>
+							</tr>
+							<tr>
+								<td>Nav</td>
+								<td><code>1</code>–<code>5</code></td>
+								<td>Switch view</td>
+							</tr>
+							<tr>
+								<td>Nav</td>
+								<td><code>q</code> / <code>Esc</code></td>
+								<td>Quit</td>
+							</tr>
+							<tr>
+								<td>Edit</td>
+								<td>type</td>
+								<td>Append to draft</td>
+							</tr>
+							<tr>
+								<td>Edit</td>
+								<td><code>Backspace</code> / <code>Delete</code></td>
+								<td>Delete last character</td>
+							</tr>
+							<tr>
+								<td>Edit</td>
+								<td><code>Enter</code></td>
+								<td>Save the draft and persist to disk</td>
+							</tr>
+							<tr>
+								<td>Edit</td>
+								<td><code>Esc</code></td>
+								<td>Cancel edit, keep existing value</td>
+							</tr>
+						</tbody>
+					</table>
+					<hr />
+					<h2 id="cli-commands" class="tsd-anchor-link">
+						CLI commands<a
+							href="#cli-commands"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<p>
+						The binary accepts global options that apply to every mode and a
+						handful of subcommands for non-interactive use. Run
+						<code>muzical --help</code> (or
+						<code>muzical &lt;subcommand&gt; --help</code>) for the
+						authoritative list.
+					</p>
+					<h3 id="global-options" class="tsd-anchor-link">
+						Global options<a
+							href="#global-options"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h3>
+					<table>
+						<thead>
+							<tr>
+								<th>Flag</th>
+								<th>Purpose</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><code>-d, --music-dir &lt;path&gt;</code></td>
+								<td>Override <code>musicDir</code> from config</td>
+							</tr>
+							<tr>
+								<td><code>-e, --extension &lt;ext&gt;</code></td>
+								<td>Add / override a song extension (repeatable)</td>
+							</tr>
+							<tr>
+								<td><code>-p, --player &lt;name&gt;</code></td>
+								<td>Force a backend (mpg123 / mpv / ffplay / vlc)</td>
+							</tr>
+							<tr>
+								<td><code>-c, --config &lt;path&gt;</code></td>
+								<td>Use a custom <code>config.json</code> location</td>
+							</tr>
+							<tr>
+								<td><code>--no-clear-screen</code></td>
+								<td>Do not clear terminal on start/exit</td>
+							</tr>
+							<tr>
+								<td><code>-v, --version</code></td>
+								<td>Print version and exit</td>
+							</tr>
+						</tbody>
+					</table>
+					<h3 id="subcommands" class="tsd-anchor-link">
+						Subcommands<a
+							href="#subcommands"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h3>
+					<ul>
+						<li>
+							<strong><code>muzical</code></strong> — launch the TUI (default).
+						</li>
+						<li>
+							<strong><code>muzical config</code></strong> — print the resolved
+							configuration as JSON and exit.
+						</li>
+						<li>
+							<strong
+								><code
+									>muzical player [--player &lt;name&gt;] [--all]</code
+								></strong
+							>
+							— print the detected playback backend (or check a specific one /
+							list all candidates).
+						</li>
+						<li>
+							<strong><code>muzical scan [--json]</code></strong> — scan the
+							music library and print a summary without launching the UI.
+						</li>
+						<li>
+							<strong
+								><code
+									>muzical list &lt;artists|albums|songs&gt; [--artist ...]
+									[--album ...] [--json]</code
+								></strong
+							>
+							— list library contents with optional filters.
+						</li>
+					</ul>
+					<h3 id="examples" class="tsd-anchor-link">
+						Examples<a
+							href="#examples"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h3>
+					<pre><code class="bash"><span class="hl-0">muzical</span><br/><span class="hl-0">muzical</span><span class="hl-1"> </span><span class="hl-4">--music-dir</span><span class="hl-1"> </span><span class="hl-2">~/Music</span><span class="hl-1"> </span><span class="hl-4">--player</span><span class="hl-1"> </span><span class="hl-2">mpv</span><br/><span class="hl-0">muzical</span><span class="hl-1"> </span><span class="hl-2">scan</span><span class="hl-1"> </span><span class="hl-4">--json</span><br/><span class="hl-0">muzical</span><span class="hl-1"> </span><span class="hl-2">list</span><span class="hl-1"> </span><span class="hl-2">artists</span><br/><span class="hl-0">muzical</span><span class="hl-1"> </span><span class="hl-2">list</span><span class="hl-1"> </span><span class="hl-2">songs</span><span class="hl-1"> </span><span class="hl-4">--artist</span><span class="hl-1"> </span><span class="hl-2">&#39;Radiohead&#39;</span><span class="hl-1"> </span><span class="hl-4">--album</span><span class="hl-1"> </span><span class="hl-2">&#39;OK Computer&#39;</span><br/><span class="hl-0">muzical</span><span class="hl-1"> </span><span class="hl-2">player</span><span class="hl-1"> </span><span class="hl-4">--all</span>
 </code><button type="button">Copy</button></pre>
 
-<hr>
-<h2 id="playback-backends" class="tsd-anchor-link">Playback backends<a href="#playback-backends" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<p>The first available binary from this list wins (in order):</p>
-<ol>
-<li><code>mpg123</code></li>
-<li><code>mpv</code></li>
-<li><code>ffplay</code></li>
-<li><code>vlc</code></li>
-</ol>
-<p>Install any one of them and ensure it is on your <code>PATH</code>, or use
-<code>--player &lt;name&gt;</code> to force a specific backend. Arguments are chosen for quiet,
-non-interactive playback suitable for a TUI (e.g. <code>mpv</code> with <code>--no-video</code>).</p>
-<p>Per-backend volume handling:</p>
-<ul>
-<li><strong><code>mpv</code></strong> — initial <code>--volume=&lt;n&gt;</code>; while playing, volume changes are sent
-over <code>--input-ipc-server</code> for instant updates without a restart.</li>
-<li><strong><code>mpg123</code></strong> — <code>-f &lt;scale&gt;</code> where <code>scale</code> is <code>volume / 100 * 256</code>.</li>
-<li><strong><code>ffplay</code></strong> — <code>-af volume=&lt;ratio&gt;</code>.</li>
-<li><strong><code>vlc</code></strong> — backend-level volume flags are not used; <code>+</code> / <code>-</code> still track
-master volume state for display.</li>
-</ul>
-<hr>
-<h2 id="how-it-works" class="tsd-anchor-link">How it works<a href="#how-it-works" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<ol>
-<li><strong>Config</strong> — <code>load_config</code> resolves <code>config.json</code> (or <code>--config &lt;path&gt;</code>),
-merges in CLI overrides, and validates <code>musicDir</code> / <code>songExtensions</code> plus
-optional Soulseek credentials.</li>
-<li><strong>Discovery</strong> — <code>load_music_dir</code> walks <code>musicDir</code> for matching extensions.</li>
-<li><strong>Library</strong> — <code>load_library</code> parses each file's metadata into in-memory
-<code>LibrarySong</code> entries.</li>
-<li><strong>UI shell</strong> — <code>App</code> (<code>src/app.tsx</code>) composes <code>StatusBar</code>, one of the five
-view components, <code>PlaybackBar</code>, and <code>HelpBar</code>; keyboard input for the
-Library / Playlist / Now Playing views is centralized in <code>use_app_input</code>.</li>
-<li><strong>Views</strong> (<code>src/views/</code>)
-<ul>
-<li><code>library_view.tsx</code> — three-column artist/album/song browser.</li>
-<li><code>playlist_view.tsx</code> — single-column play queue.</li>
-<li><code>now_playing_view.tsx</code> — full-pane readout with progress bar.</li>
-<li><code>soulseek_view.tsx</code> — search/download UI backed by <code>useSoulseek</code>.</li>
-<li><code>config_view.tsx</code> — live <code>config.json</code> editor, writes via <code>writeConfig</code>.</li>
-</ul>
-</li>
-<li><strong>Player</strong> — <code>resolvePlayer</code> / <code>detectPlayer</code> picks a backend from
-<code>PLAYER_CANDIDATES</code>; <code>usePlayer</code> spawns it for the selected file path and
-forwards volume changes (including mpv IPC updates).</li>
-</ol>
-<hr>
-<h2 id="development" class="tsd-anchor-link">Development<a href="#development" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">install</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">dev</span><span class="hl-1">          </span><span class="hl-3"># run from TypeScript source</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">build</span><span class="hl-1">        </span><span class="hl-3"># TypeScript + bundled CLI + TypeDoc</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">test</span><span class="hl-1">         </span><span class="hl-3"># Mocha</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">test:vitest</span><span class="hl-1">  </span><span class="hl-3"># Vitest</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">lint</span><span class="hl-1">         </span><span class="hl-3"># markdownlint (README) + ESLint</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">lint:eslint</span><span class="hl-1">  </span><span class="hl-3"># ESLint only (src + package.json)</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">format</span><span class="hl-1">       </span><span class="hl-3"># Prettier</span>
+					<hr />
+					<h2 id="playback-backends" class="tsd-anchor-link">
+						Playback backends<a
+							href="#playback-backends"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<p>The first available binary from this list wins (in order):</p>
+					<ol>
+						<li><code>mpg123</code></li>
+						<li><code>mpv</code></li>
+						<li><code>ffplay</code></li>
+						<li><code>vlc</code></li>
+					</ol>
+					<p>
+						Install any one of them and ensure it is on your <code>PATH</code>,
+						or use <code>--player &lt;name&gt;</code> to force a specific
+						backend. Arguments are chosen for quiet, non-interactive playback
+						suitable for a TUI (e.g. <code>mpv</code> with
+						<code>--no-video</code>).
+					</p>
+					<p>Per-backend volume handling:</p>
+					<ul>
+						<li>
+							<strong><code>mpv</code></strong> — initial
+							<code>--volume=&lt;n&gt;</code>; while playing, volume changes are
+							sent over <code>--input-ipc-server</code> for instant updates
+							without a restart.
+						</li>
+						<li>
+							<strong><code>mpg123</code></strong> —
+							<code>-f &lt;scale&gt;</code> where <code>scale</code> is
+							<code>volume / 100 * 256</code>.
+						</li>
+						<li>
+							<strong><code>ffplay</code></strong> —
+							<code>-af volume=&lt;ratio&gt;</code>.
+						</li>
+						<li>
+							<strong><code>vlc</code></strong> — backend-level volume flags are
+							not used; <code>+</code> / <code>-</code> still track master
+							volume state for display.
+						</li>
+					</ul>
+					<hr />
+					<h2 id="how-it-works" class="tsd-anchor-link">
+						How it works<a
+							href="#how-it-works"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<ol>
+						<li>
+							<strong>Config</strong> — <code>load_config</code> resolves
+							<code>config.json</code> (or <code>--config &lt;path&gt;</code>),
+							merges in CLI overrides, and validates <code>musicDir</code> /
+							<code>songExtensions</code> plus optional Soulseek credentials.
+						</li>
+						<li>
+							<strong>Discovery</strong> — <code>load_music_dir</code> walks
+							<code>musicDir</code> for matching extensions.
+						</li>
+						<li>
+							<strong>Library</strong> — <code>load_library</code> parses each
+							file's metadata into in-memory <code>LibrarySong</code> entries.
+						</li>
+						<li>
+							<strong>UI shell</strong> —
+							<code>App</code> (<code>src/app.tsx</code>) composes
+							<code>StatusBar</code>, one of the five view components,
+							<code>PlaybackBar</code>, and <code>HelpBar</code>; keyboard input
+							for the Library / Playlist / Now Playing views is centralized in
+							<code>use_app_input</code>.
+						</li>
+						<li>
+							<strong>Views</strong> (<code>src/views/</code>)
+							<ul>
+								<li>
+									<code>library_view.tsx</code> — three-column artist/album/song
+									browser.
+								</li>
+								<li>
+									<code>playlist_view.tsx</code> — single-column play queue.
+								</li>
+								<li>
+									<code>now_playing_view.tsx</code> — full-pane readout with
+									progress bar.
+								</li>
+								<li>
+									<code>soulseek_view.tsx</code> — search/download UI backed by
+									<code>useSoulseek</code>.
+								</li>
+								<li>
+									<code>config_view.tsx</code> — live
+									<code>config.json</code> editor, writes via
+									<code>writeConfig</code>.
+								</li>
+							</ul>
+						</li>
+						<li>
+							<strong>Player</strong> — <code>resolvePlayer</code> /
+							<code>detectPlayer</code> picks a backend from
+							<code>PLAYER_CANDIDATES</code>; <code>usePlayer</code> spawns it
+							for the selected file path and forwards volume changes (including
+							mpv IPC updates).
+						</li>
+					</ol>
+					<hr />
+					<h2 id="development" class="tsd-anchor-link">
+						Development<a
+							href="#development"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">install</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">dev</span><span class="hl-1">          </span><span class="hl-3"># run from TypeScript source</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">build</span><span class="hl-1">        </span><span class="hl-3"># TypeScript + bundled CLI + TypeDoc</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">test</span><span class="hl-1">         </span><span class="hl-3"># Mocha</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">test:vitest</span><span class="hl-1">  </span><span class="hl-3"># Vitest</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">lint</span><span class="hl-1">         </span><span class="hl-3"># markdownlint (README) + ESLint</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">lint:eslint</span><span class="hl-1">  </span><span class="hl-3"># ESLint only (src + package.json)</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">format</span><span class="hl-1">       </span><span class="hl-3"># Prettier</span>
 </code><button type="button">Copy</button></pre>
 
-<p>Release and docs scripts are defined in <code>package.json</code> (<code>prepare-release</code>,
-<code>serve:docs</code>, etc.) for maintainers.</p>
-<hr>
-<h2 id="documentation" class="tsd-anchor-link">Documentation<a href="#documentation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<p>TypeDoc output is produced under <code>docs/</code> when you run <code>pnpm build</code> (or
-<code>pnpm build:docs</code>). Serve locally:</p>
-<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">serve:docs</span>
+					<p>
+						Release and docs scripts are defined in
+						<code>package.json</code> (<code>prepare-release</code>,
+						<code>serve:docs</code>, etc.) for maintainers.
+					</p>
+					<hr />
+					<h2 id="documentation" class="tsd-anchor-link">
+						Documentation<a
+							href="#documentation"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<p>
+						TypeDoc output is produced under <code>docs/</code> when you run
+						<code>pnpm build</code> (or <code>pnpm build:docs</code>). Serve
+						locally:
+					</p>
+					<pre><code class="bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">serve:docs</span>
 </code><button type="button">Copy</button></pre>
 
-<hr>
-<h2 id="contributing" class="tsd-anchor-link">Contributing<a href="#contributing" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<p>Issues and pull requests are welcome at
-<a href="https://github.com/f3rnox/muzical/issues">https://github.com/f3rnox/muzical/issues</a>.</p>
-<ul>
-<li>Match existing <strong>TypeScript</strong> style (no semicolons, single quotes, explicit
-types, one function per file).</li>
-<li>Run <strong><code>pnpm lint</code></strong> and <strong><code>pnpm test</code></strong> before opening a PR when you touch
-code or this README.</li>
-</ul>
-<hr>
-<h2 id="license" class="tsd-anchor-link">License<a href="#license" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<p>This project is licensed under the <strong>MIT License</strong> — see <a href="media/LICENSE.md">LICENSE.md</a>.</p>
-<hr>
-<h2 id="links" class="tsd-anchor-link">Links<a href="#links" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
-<ul>
-<li><strong>Repository:</strong> <a href="https://github.com/f3rnox/muzical">https://github.com/f3rnox/muzical</a></li>
-<li><strong>Issues:</strong> <a href="https://github.com/f3rnox/muzical/issues">https://github.com/f3rnox/muzical/issues</a></li>
-<li><strong>Homepage:</strong> <a href="https://github.com/f3rnox/muzical">https://github.com/f3rnox/muzical</a> (see <code>package.json</code> <code>homepage</code>)</li>
-</ul>
-</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#muzical"><span>Muzical</span></a><ul><li><a href="#table-of-contents"><span>Table of contents</span></a></li><li><a href="#features"><span>Features</span></a></li><li><a href="#requirements"><span>Requirements</span></a></li><li><a href="#install"><span>Install</span></a></li><li><ul><li><a href="#from-the-repository"><span>From the repository</span></a></li><li><a href="#published-package"><span>Published package</span></a></li></ul></li><li><a href="#configuration"><span>Configuration</span></a></li><li><ul><li><a href="#shape"><span> shape</span></a></li></ul></li><li><a href="#usage"><span>Usage</span></a></li><li><ul><li><a href="#quick-navigation"><span>Quick navigation</span></a></li></ul></li><li><a href="#views"><span>Views</span></a></li><li><a href="#keyboard-reference"><span>Keyboard reference</span></a></li><li><ul><li><a href="#global-library-playlist-now-playing"><span>Global (<wbr/>Library, <wbr/>Playlist, <wbr/>Now <wbr/>Playing)</span></a></li><li><a href="#library-view"><span>Library view</span></a></li><li><a href="#playlist-view"><span>Playlist view</span></a></li><li><a href="#now-playing-view"><span>Now <wbr/>Playing view</span></a></li><li><a href="#soulseek-view-view-local-bindings"><span>Soulseek view (view-<wbr/>local bindings)</span></a></li><li><a href="#config-view-view-local-bindings"><span>Config view (view-<wbr/>local bindings)</span></a></li></ul></li><li><a href="#cli-commands"><span>CLI commands</span></a></li><li><ul><li><a href="#global-options"><span>Global options</span></a></li><li><a href="#subcommands"><span>Subcommands</span></a></li><li><a href="#examples"><span>Examples</span></a></li></ul></li><li><a href="#playback-backends"><span>Playback backends</span></a></li><li><a href="#how-it-works"><span>How it works</span></a></li><li><a href="#development"><span>Development</span></a></li><li><a href="#documentation"><span>Documentation</span></a></li><li><a href="#contributing"><span>Contributing</span></a></li><li><a href="#license"><span>License</span></a></li><li><a href="#links"><span>Links</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">muzical</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer></footer><div class="overlay"></div></body></html>
+					<hr />
+					<h2 id="contributing" class="tsd-anchor-link">
+						Contributing<a
+							href="#contributing"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<p>
+						Issues and pull requests are welcome at
+						<a href="https://github.com/f3rnox/muzical/issues"
+							>https://github.com/f3rnox/muzical/issues</a
+						>.
+					</p>
+					<ul>
+						<li>
+							Match existing <strong>TypeScript</strong> style (no semicolons,
+							single quotes, explicit types, one function per file).
+						</li>
+						<li>
+							Run <strong><code>pnpm lint</code></strong> and
+							<strong><code>pnpm test</code></strong> before opening a PR when
+							you touch code or this README.
+						</li>
+					</ul>
+					<hr />
+					<h2 id="license" class="tsd-anchor-link">
+						License<a
+							href="#license"
+							aria-label="Permalink"
+							class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<p>
+						This project is licensed under the <strong>MIT License</strong> —
+						see <a href="media/LICENSE.md">LICENSE.md</a>.
+					</p>
+					<hr />
+					<h2 id="links" class="tsd-anchor-link">
+						Links<a href="#links" aria-label="Permalink" class="tsd-anchor-icon"
+							><svg viewBox="0 0 24 24" aria-hidden="true">
+								<use href="assets/icons.svg#icon-anchor"></use></svg
+						></a>
+					</h2>
+					<ul>
+						<li>
+							<strong>Repository:</strong>
+							<a href="https://github.com/f3rnox/muzical"
+								>https://github.com/f3rnox/muzical</a
+							>
+						</li>
+						<li>
+							<strong>Issues:</strong>
+							<a href="https://github.com/f3rnox/muzical/issues"
+								>https://github.com/f3rnox/muzical/issues</a
+							>
+						</li>
+						<li>
+							<strong>Homepage:</strong>
+							<a href="https://github.com/f3rnox/muzical"
+								>https://github.com/f3rnox/muzical</a
+							>
+							(see <code>package.json</code> <code>homepage</code>)
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="col-sidebar">
+				<div class="page-menu">
+					<div class="tsd-navigation settings">
+						<details class="tsd-accordion">
+							<summary class="tsd-accordion-summary">
+								<svg
+									width="20"
+									height="20"
+									viewBox="0 0 24 24"
+									fill="none"
+									aria-hidden="true"
+								>
+									<use href="assets/icons.svg#icon-chevronDown"></use>
+								</svg>
+								<h3>Settings</h3>
+							</summary>
+							<div class="tsd-accordion-details">
+								<div class="tsd-filter-visibility">
+									<span class="settings-label">Member Visibility</span>
+									<ul id="tsd-filter-options">
+										<li class="tsd-filter-item">
+											<label class="tsd-filter-input"
+												><input
+													type="checkbox"
+													id="tsd-filter-protected"
+													name="protected"
+												/><svg
+													width="32"
+													height="32"
+													viewBox="0 0 32 32"
+													aria-hidden="true"
+												>
+													<rect
+														class="tsd-checkbox-background"
+														width="30"
+														height="30"
+														x="1"
+														y="1"
+														rx="6"
+														fill="none"
+													></rect>
+													<path
+														class="tsd-checkbox-checkmark"
+														d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25"
+														stroke="none"
+														stroke-width="3.5"
+														stroke-linejoin="round"
+														fill="none"
+													></path></svg
+												><span>Protected</span></label
+											>
+										</li>
+										<li class="tsd-filter-item">
+											<label class="tsd-filter-input"
+												><input
+													type="checkbox"
+													id="tsd-filter-inherited"
+													name="inherited"
+													checked
+												/><svg
+													width="32"
+													height="32"
+													viewBox="0 0 32 32"
+													aria-hidden="true"
+												>
+													<rect
+														class="tsd-checkbox-background"
+														width="30"
+														height="30"
+														x="1"
+														y="1"
+														rx="6"
+														fill="none"
+													></rect>
+													<path
+														class="tsd-checkbox-checkmark"
+														d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25"
+														stroke="none"
+														stroke-width="3.5"
+														stroke-linejoin="round"
+														fill="none"
+													></path></svg
+												><span>Inherited</span></label
+											>
+										</li>
+										<li class="tsd-filter-item">
+											<label class="tsd-filter-input"
+												><input
+													type="checkbox"
+													id="tsd-filter-external"
+													name="external"
+												/><svg
+													width="32"
+													height="32"
+													viewBox="0 0 32 32"
+													aria-hidden="true"
+												>
+													<rect
+														class="tsd-checkbox-background"
+														width="30"
+														height="30"
+														x="1"
+														y="1"
+														rx="6"
+														fill="none"
+													></rect>
+													<path
+														class="tsd-checkbox-checkmark"
+														d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25"
+														stroke="none"
+														stroke-width="3.5"
+														stroke-linejoin="round"
+														fill="none"
+													></path></svg
+												><span>External</span></label
+											>
+										</li>
+									</ul>
+								</div>
+								<div class="tsd-theme-toggle">
+									<label class="settings-label" for="tsd-theme">Theme</label
+									><select id="tsd-theme">
+										<option value="os">OS</option>
+										<option value="light">Light</option>
+										<option value="dark">Dark</option>
+									</select>
+								</div>
+							</div>
+						</details>
+					</div>
+					<details open class="tsd-accordion tsd-page-navigation">
+						<summary class="tsd-accordion-summary">
+							<svg
+								width="20"
+								height="20"
+								viewBox="0 0 24 24"
+								fill="none"
+								aria-hidden="true"
+							>
+								<use href="assets/icons.svg#icon-chevronDown"></use>
+							</svg>
+							<h3>On This Page</h3>
+						</summary>
+						<div class="tsd-accordion-details">
+							<a href="#muzical"><span>Muzical</span></a>
+							<ul>
+								<li>
+									<a href="#table-of-contents"
+										><span>Table of contents</span></a
+									>
+								</li>
+								<li>
+									<a href="#features"><span>Features</span></a>
+								</li>
+								<li>
+									<a href="#requirements"><span>Requirements</span></a>
+								</li>
+								<li>
+									<a href="#install"><span>Install</span></a>
+								</li>
+								<li>
+									<ul>
+										<li>
+											<a href="#from-the-repository"
+												><span>From the repository</span></a
+											>
+										</li>
+										<li>
+											<a href="#published-package"
+												><span>Published package</span></a
+											>
+										</li>
+									</ul>
+								</li>
+								<li>
+									<a href="#configuration"><span>Configuration</span></a>
+								</li>
+								<li>
+									<ul>
+										<li>
+											<a href="#shape"><span> shape</span></a>
+										</li>
+									</ul>
+								</li>
+								<li>
+									<a href="#usage"><span>Usage</span></a>
+								</li>
+								<li>
+									<ul>
+										<li>
+											<a href="#quick-navigation"
+												><span>Quick navigation</span></a
+											>
+										</li>
+									</ul>
+								</li>
+								<li>
+									<a href="#views"><span>Views</span></a>
+								</li>
+								<li>
+									<a href="#keyboard-reference"
+										><span>Keyboard reference</span></a
+									>
+								</li>
+								<li>
+									<ul>
+										<li>
+											<a href="#global-library-playlist-now-playing"
+												><span
+													>Global (<wbr />Library, <wbr />Playlist, <wbr />Now
+													<wbr />Playing)</span
+												></a
+											>
+										</li>
+										<li>
+											<a href="#library-view"><span>Library view</span></a>
+										</li>
+										<li>
+											<a href="#playlist-view"><span>Playlist view</span></a>
+										</li>
+										<li>
+											<a href="#now-playing-view"
+												><span>Now <wbr />Playing view</span></a
+											>
+										</li>
+										<li>
+											<a href="#soulseek-view-view-local-bindings"
+												><span
+													>Soulseek view (view-<wbr />local bindings)</span
+												></a
+											>
+										</li>
+										<li>
+											<a href="#config-view-view-local-bindings"
+												><span
+													>Config view (view-<wbr />local bindings)</span
+												></a
+											>
+										</li>
+									</ul>
+								</li>
+								<li>
+									<a href="#cli-commands"><span>CLI commands</span></a>
+								</li>
+								<li>
+									<ul>
+										<li>
+											<a href="#global-options"><span>Global options</span></a>
+										</li>
+										<li>
+											<a href="#subcommands"><span>Subcommands</span></a>
+										</li>
+										<li>
+											<a href="#examples"><span>Examples</span></a>
+										</li>
+									</ul>
+								</li>
+								<li>
+									<a href="#playback-backends"
+										><span>Playback backends</span></a
+									>
+								</li>
+								<li>
+									<a href="#how-it-works"><span>How it works</span></a>
+								</li>
+								<li>
+									<a href="#development"><span>Development</span></a>
+								</li>
+								<li>
+									<a href="#documentation"><span>Documentation</span></a>
+								</li>
+								<li>
+									<a href="#contributing"><span>Contributing</span></a>
+								</li>
+								<li>
+									<a href="#license"><span>License</span></a>
+								</li>
+								<li>
+									<a href="#links"><span>Links</span></a>
+								</li>
+							</ul>
+						</div>
+					</details>
+				</div>
+				<div class="site-menu">
+					<nav class="tsd-navigation">
+						<a href="modules.html">muzical</a>
+						<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+							<li>Loading...</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+		<footer></footer>
+		<div class="overlay"></div>
+	</body>
+</html>
