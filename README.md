@@ -132,10 +132,10 @@ showing the expected path.
 
 ```json
 {
-	"musicDir": "/absolute/path/to/your/music",
-	"songExtensions": [".mp3", ".flac"],
-	"soulseekUsername": "",
-	"soulseekPassword": ""
+  "musicDir": "/absolute/path/to/your/music",
+  "songExtensions": [".mp3", ".flac"],
+  "soulseekUsername": "",
+  "soulseekPassword": ""
 }
 ```
 
